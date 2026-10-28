@@ -1,0 +1,10 @@
+# GenSync-Cache: Example Terraform Variables
+# Copy to terraform.tfvars for custom overrides
+
+aws_region         = "ap-south-1"
+environment        = "dev"
+emergency_number   = "112"
+cosine_threshold   = 0.92
+alert_email        = "kamaleshn2006@gmail.com"
+lambda_memory_size = 512
+lambda_timeout     = 30
