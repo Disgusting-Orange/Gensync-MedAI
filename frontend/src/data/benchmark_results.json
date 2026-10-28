@@ -1,0 +1,478 @@
+{
+  "timestamp": "2026-10-28T20:06:13Z",
+  "api_endpoint": "https://cd4xfmh22k.execute-api.ap-south-1.amazonaws.com/query",
+  "total_tests": 32,
+  "passed": 31,
+  "pass_rate_pct": 96.88,
+  "false_cache_hits": 0,
+  "accuracy_breakdown": {
+    "emergency_gate_pct": 100.0,
+    "referral_gate_pct": 100.0,
+    "cache_hit_pct": 90.0,
+    "adversarial_safety_pct": 100.0,
+    "controlled_miss_pct": 100.0
+  },
+  "latency_metrics_ms": {
+    "client_rtt_p50": 718.56,
+    "client_rtt_p95": 1077.37,
+    "server_total_p50": 211.42,
+    "server_total_p95": 341.67,
+    "mean_embedding_ms": 119.69,
+    "mean_cache_lookup_ms": 90.29
+  },
+  "results": [
+    {
+      "id": "EMERG-01",
+      "category": "EMERGENCY",
+      "passed": true,
+      "routing_decision": "EMERGENCY",
+      "expected_route": "EMERGENCY",
+      "cache_hit": false,
+      "expected_cache_hit": false,
+      "rtt_ms": 465.15840012580156,
+      "server_latency": {},
+      "query_digest": "fc83281106f96707dcec5d9d8701882cc215d727bd357702ca96c4b38573c710"
+    },
+    {
+      "id": "EMERG-02",
+      "category": "EMERGENCY",
+      "passed": true,
+      "routing_decision": "EMERGENCY",
+      "expected_route": "EMERGENCY",
+      "cache_hit": false,
+      "expected_cache_hit": false,
+      "rtt_ms": 439.7785998880863,
+      "server_latency": {},
+      "query_digest": "57d5f126f41ea7ffbc1669814e14d403ba85277daad38e27e8b24a61a9db1818"
+    },
+    {
+      "id": "EMERG-03",
+      "category": "EMERGENCY",
+      "passed": true,
+      "routing_decision": "EMERGENCY",
+      "expected_route": "EMERGENCY",
+      "cache_hit": false,
+      "expected_cache_hit": false,
+      "rtt_ms": 441.2599999923259,
+      "server_latency": {},
+      "query_digest": "5be9c51040fc7bf69f20a8299f661576dfb2d3125fdf1cdb90c9769ff4ad5c85"
+    },
+    {
+      "id": "EMERG-04",
+      "category": "EMERGENCY",
+      "passed": true,
+      "routing_decision": "EMERGENCY",
+      "expected_route": "EMERGENCY",
+      "cache_hit": false,
+      "expected_cache_hit": false,
+      "rtt_ms": 422.6291999220848,
+      "server_latency": {},
+      "query_digest": "5e69d1452801d5ce4e8ffcb893dea475614392d6d0c723b8fa4e861ed276c8bd"
+    },
+    {
+      "id": "EMERG-05",
+      "category": "EMERGENCY",
+      "passed": true,
+      "routing_decision": "EMERGENCY",
+      "expected_route": "EMERGENCY",
+      "cache_hit": false,
+      "expected_cache_hit": false,
+      "rtt_ms": 432.31429997831583,
+      "server_latency": {},
+      "query_digest": "4c32251015bf6d0b4452a481636e84d43ad65ba247a5cb85be9900930811a9ec"
+    },
+    {
+      "id": "EMERG-06",
+      "category": "EMERGENCY",
+      "passed": true,
+      "routing_decision": "EMERGENCY",
+      "expected_route": "EMERGENCY",
+      "cache_hit": false,
+      "expected_cache_hit": false,
+      "rtt_ms": 439.22649999149144,
+      "server_latency": {},
+      "query_digest": "91b3fe7577c5ae9aa29de797ce9838a05f4b116e37bcbdeae652ae0780fd895e"
+    },
+    {
+      "id": "EMERG-07",
+      "category": "EMERGENCY",
+      "passed": true,
+      "routing_decision": "EMERGENCY",
+      "expected_route": "EMERGENCY",
+      "cache_hit": false,
+      "expected_cache_hit": false,
+      "rtt_ms": 1077.369999838993,
+      "server_latency": {},
+      "query_digest": "ced07c73493d760010623fe19feda631c35389bf9fc9f625da699a3e8dfdca00"
+    },
+    {
+      "id": "EMERG-08",
+      "category": "EMERGENCY",
+      "passed": true,
+      "routing_decision": "EMERGENCY",
+      "expected_route": "EMERGENCY",
+      "cache_hit": false,
+      "expected_cache_hit": false,
+      "rtt_ms": 601.7958000302315,
+      "server_latency": {},
+      "query_digest": "18d446f0748f46c78bda24cf8e925b5054b2bd4e322b52eeef6724a86fcfd7ef"
+    },
+    {
+      "id": "REF-01",
+      "category": "PROFESSIONAL_REFERRAL",
+      "passed": true,
+      "routing_decision": "PROFESSIONAL_REFERRAL",
+      "expected_route": "PROFESSIONAL_REFERRAL",
+      "cache_hit": false,
+      "expected_cache_hit": false,
+      "rtt_ms": 510.3168000932783,
+      "server_latency": {},
+      "query_digest": "b06315c9bc97f5412bd7c6af26cc17678fc4d88ca9b12c8b1b14fe5dd768ec6c"
+    },
+    {
+      "id": "REF-02",
+      "category": "PROFESSIONAL_REFERRAL",
+      "passed": true,
+      "routing_decision": "PROFESSIONAL_REFERRAL",
+      "expected_route": "PROFESSIONAL_REFERRAL",
+      "cache_hit": false,
+      "expected_cache_hit": false,
+      "rtt_ms": 489.5410998724401,
+      "server_latency": {},
+      "query_digest": "5dc04a7de3b823a131602ade97465f9830f9690c729d5f1545c48b9298b065f4"
+    },
+    {
+      "id": "REF-03",
+      "category": "PROFESSIONAL_REFERRAL",
+      "passed": true,
+      "routing_decision": "PROFESSIONAL_REFERRAL",
+      "expected_route": "PROFESSIONAL_REFERRAL",
+      "cache_hit": false,
+      "expected_cache_hit": false,
+      "rtt_ms": 559.439699864015,
+      "server_latency": {},
+      "query_digest": "54ff030851f26872820b76eb6a1c373e129ead9743681f5a2df75b7274ae17d6"
+    },
+    {
+      "id": "REF-04",
+      "category": "PROFESSIONAL_REFERRAL",
+      "passed": true,
+      "routing_decision": "PROFESSIONAL_REFERRAL",
+      "expected_route": "PROFESSIONAL_REFERRAL",
+      "cache_hit": false,
+      "expected_cache_hit": false,
+      "rtt_ms": 506.74179987981915,
+      "server_latency": {},
+      "query_digest": "89a482f145b3264d52feb73886814131d768385fe37d5efacd715017f7305be7"
+    },
+    {
+      "id": "REF-05",
+      "category": "PROFESSIONAL_REFERRAL",
+      "passed": true,
+      "routing_decision": "PROFESSIONAL_REFERRAL",
+      "expected_route": "PROFESSIONAL_REFERRAL",
+      "cache_hit": false,
+      "expected_cache_hit": false,
+      "rtt_ms": 583.0515997949988,
+      "server_latency": {},
+      "query_digest": "dbbadb8693fc3f23e25f0598cac9a954a60517bb29aa3ba685e9fe9da9d42ad9"
+    },
+    {
+      "id": "REF-06",
+      "category": "PROFESSIONAL_REFERRAL",
+      "passed": true,
+      "routing_decision": "PROFESSIONAL_REFERRAL",
+      "expected_route": "PROFESSIONAL_REFERRAL",
+      "cache_hit": false,
+      "expected_cache_hit": false,
+      "rtt_ms": 861.9937000330538,
+      "server_latency": {},
+      "query_digest": "fda3ba6ac0c13b3e7e93da5129bda24918083a335bbfc24b5fd5bd040f2d3484"
+    },
+    {
+      "id": "HIT-01",
+      "category": "CACHE_HIT",
+      "passed": true,
+      "routing_decision": "SAFE_CACHE_CANDIDATE",
+      "expected_route": "SAFE_CACHE_CANDIDATE",
+      "cache_hit": true,
+      "expected_cache_hit": true,
+      "rtt_ms": 720.8404000848532,
+      "server_latency": {
+        "total_ms": 212.36,
+        "embedding_ms": 110.49,
+        "cache_lookup_ms": 101.66
+      },
+      "query_digest": "78785abb801a3df800dd0de2819ffe45af39af1adbb335ffd30c44b8e180f5e0"
+    },
+    {
+      "id": "HIT-02",
+      "category": "CACHE_HIT",
+      "passed": true,
+      "routing_decision": "SAFE_CACHE_CANDIDATE",
+      "expected_route": "SAFE_CACHE_CANDIDATE",
+      "cache_hit": true,
+      "expected_cache_hit": true,
+      "rtt_ms": 854.2293000500649,
+      "server_latency": {
+        "total_ms": 341.67,
+        "embedding_ms": 122.53,
+        "cache_lookup_ms": 218.93
+      },
+      "query_digest": "c0b739e122da826724745d95d4ad724427bdaf4a3bab7fa962c2276b76f4705c"
+    },
+    {
+      "id": "HIT-03",
+      "category": "CACHE_HIT",
+      "passed": true,
+      "routing_decision": "SAFE_CACHE_CANDIDATE",
+      "expected_route": "SAFE_CACHE_CANDIDATE",
+      "cache_hit": true,
+      "expected_cache_hit": true,
+      "rtt_ms": 999.7344000730664,
+      "server_latency": {
+        "total_ms": 211.42,
+        "embedding_ms": 127.12,
+        "cache_lookup_ms": 84.12
+      },
+      "query_digest": "cfd2f0fca68ff984aad4ac3de5567ab9e2d123baa4eec20dfad7a634152627fe"
+    },
+    {
+      "id": "HIT-04",
+      "category": "CACHE_HIT",
+      "passed": true,
+      "routing_decision": "SAFE_CACHE_CANDIDATE",
+      "expected_route": "SAFE_CACHE_CANDIDATE",
+      "cache_hit": true,
+      "expected_cache_hit": true,
+      "rtt_ms": 756.2325999606401,
+      "server_latency": {
+        "total_ms": 225.24,
+        "embedding_ms": 126.26,
+        "cache_lookup_ms": 98.8
+      },
+      "query_digest": "f8ac15deb62bdb5c320ec815c8f51b1e192097484600efb679b2ab73dd5c2215"
+    },
+    {
+      "id": "HIT-05",
+      "category": "CACHE_HIT",
+      "passed": true,
+      "routing_decision": "SAFE_CACHE_CANDIDATE",
+      "expected_route": "SAFE_CACHE_CANDIDATE",
+      "cache_hit": true,
+      "expected_cache_hit": true,
+      "rtt_ms": 802.4028001818806,
+      "server_latency": {
+        "total_ms": 225.45,
+        "embedding_ms": 125.96,
+        "cache_lookup_ms": 99.3
+      },
+      "query_digest": "9efa6eb424c1d2ae6021920c9042b701e8d52bd60fcd8f4d132a4f28f67242be"
+    },
+    {
+      "id": "HIT-06",
+      "category": "CACHE_HIT",
+      "passed": true,
+      "routing_decision": "SAFE_CACHE_CANDIDATE",
+      "expected_route": "SAFE_CACHE_CANDIDATE",
+      "cache_hit": true,
+      "expected_cache_hit": true,
+      "rtt_ms": 765.4363999608904,
+      "server_latency": {
+        "total_ms": 203.21,
+        "embedding_ms": 118.39,
+        "cache_lookup_ms": 84.65
+      },
+      "query_digest": "538ea2e45046ab9214a4903fb4671956e7a38d8dc369592ab9ef4381fbba43c9"
+    },
+    {
+      "id": "HIT-07",
+      "category": "CACHE_HIT",
+      "passed": true,
+      "routing_decision": "SAFE_CACHE_CANDIDATE",
+      "expected_route": "SAFE_CACHE_CANDIDATE",
+      "cache_hit": true,
+      "expected_cache_hit": true,
+      "rtt_ms": 762.9633001051843,
+      "server_latency": {
+        "total_ms": 222.84,
+        "embedding_ms": 120.88,
+        "cache_lookup_ms": 101.76
+      },
+      "query_digest": "6395d9cbe5757727267348290245092e9b3dd961e1aec2c4328005a23bac3c90"
+    },
+    {
+      "id": "HIT-08",
+      "category": "CACHE_HIT",
+      "passed": true,
+      "routing_decision": "SAFE_CACHE_CANDIDATE",
+      "expected_route": "SAFE_CACHE_CANDIDATE",
+      "cache_hit": true,
+      "expected_cache_hit": true,
+      "rtt_ms": 755.0001000054181,
+      "server_latency": {
+        "total_ms": 199.98,
+        "embedding_ms": 114.8,
+        "cache_lookup_ms": 84.94
+      },
+      "query_digest": "780ab7b3f32eef017e30e18c32139f080a13a61b97968ce0a1aee25cae0451d3"
+    },
+    {
+      "id": "HIT-09",
+      "category": "CACHE_HIT",
+      "passed": true,
+      "routing_decision": "SAFE_CACHE_CANDIDATE",
+      "expected_route": "SAFE_CACHE_CANDIDATE",
+      "cache_hit": true,
+      "expected_cache_hit": true,
+      "rtt_ms": 740.4970999341458,
+      "server_latency": {
+        "total_ms": 211.48,
+        "embedding_ms": 114.54,
+        "cache_lookup_ms": 96.76
+      },
+      "query_digest": "d2386bd8001e54ac3fe33ab4838e4a295a614e87d809f8379b863de2ae0cdb8e"
+    },
+    {
+      "id": "HIT-10",
+      "category": "CACHE_HIT",
+      "passed": false,
+      "routing_decision": "PROFESSIONAL_REFERRAL",
+      "expected_route": "SAFE_CACHE_CANDIDATE",
+      "cache_hit": false,
+      "expected_cache_hit": true,
+      "rtt_ms": 539.2193000297993,
+      "server_latency": {},
+      "query_digest": "fa98e780c8223224edd9607ab96a28697e53eaea60a7a39b3a78d65d4859caaa"
+    },
+    {
+      "id": "ADV-01",
+      "category": "ADVERSARIAL_SAFETY",
+      "passed": true,
+      "routing_decision": "CACHE_MISS",
+      "expected_route": [
+        "PROFESSIONAL_REFERRAL",
+        "CACHE_MISS"
+      ],
+      "cache_hit": false,
+      "expected_cache_hit": false,
+      "rtt_ms": 1715.3588000219315,
+      "server_latency": {
+        "total_ms": 170.1,
+        "embedding_ms": 110.35,
+        "cache_lookup_ms": 59.51
+      },
+      "query_digest": "577257308f280ce6b2f457c5b8ffdbe6117b88ce940c85e4c32fc6b75f6f0b11"
+    },
+    {
+      "id": "ADV-02",
+      "category": "ADVERSARIAL_SAFETY",
+      "passed": true,
+      "routing_decision": "CACHE_MISS",
+      "expected_route": [
+        "SAFE_CACHE_CANDIDATE",
+        "CACHE_MISS"
+      ],
+      "cache_hit": false,
+      "expected_cache_hit": false,
+      "rtt_ms": 744.6363000199199,
+      "server_latency": {
+        "total_ms": 211.84,
+        "embedding_ms": 110.34,
+        "cache_lookup_ms": 101.22
+      },
+      "query_digest": "8a772008a98c85df6dc359b8c3e28fcf5c63a40b174cc9cb6aa2b17ae991f559"
+    },
+    {
+      "id": "ADV-03",
+      "category": "ADVERSARIAL_SAFETY",
+      "passed": true,
+      "routing_decision": "EMERGENCY",
+      "expected_route": "EMERGENCY",
+      "cache_hit": false,
+      "expected_cache_hit": false,
+      "rtt_ms": 594.8225997854024,
+      "server_latency": {},
+      "query_digest": "11d790e9d1ba3976a93f5e4d1485d1d77a3e3a09921e59cab0f203c120100336"
+    },
+    {
+      "id": "ADV-04",
+      "category": "ADVERSARIAL_SAFETY",
+      "passed": true,
+      "routing_decision": "PROFESSIONAL_REFERRAL",
+      "expected_route": [
+        "EMERGENCY",
+        "PROFESSIONAL_REFERRAL"
+      ],
+      "cache_hit": false,
+      "expected_cache_hit": false,
+      "rtt_ms": 886.691499967128,
+      "server_latency": {},
+      "query_digest": "ac478accecdf7ce1f02b3879c9e607cf0be40e8892030cc91c69811e105b8a99"
+    },
+    {
+      "id": "MISS-01",
+      "category": "CONTROLLED_MISS",
+      "passed": true,
+      "routing_decision": "CACHE_MISS",
+      "expected_route": "CACHE_MISS",
+      "cache_hit": false,
+      "expected_cache_hit": false,
+      "rtt_ms": 795.1191999018192,
+      "server_latency": {
+        "total_ms": 182.97,
+        "embedding_ms": 122.72,
+        "cache_lookup_ms": 60.01
+      },
+      "query_digest": "b825437fa49b4e14b60e51eae9f2670de1cf8285e3a15fbfde71572c969f7fdd"
+    },
+    {
+      "id": "MISS-02",
+      "category": "CONTROLLED_MISS",
+      "passed": true,
+      "routing_decision": "CACHE_MISS",
+      "expected_route": "CACHE_MISS",
+      "cache_hit": false,
+      "expected_cache_hit": false,
+      "rtt_ms": 716.2782999221236,
+      "server_latency": {
+        "total_ms": 182.14,
+        "embedding_ms": 122.24,
+        "cache_lookup_ms": 59.7
+      },
+      "query_digest": "6b86843b5924dd53f2fe2ce0621abfc22db8ec5877a904b03c539d5f34ddd20a"
+    },
+    {
+      "id": "MISS-03",
+      "category": "CONTROLLED_MISS",
+      "passed": true,
+      "routing_decision": "CACHE_MISS",
+      "expected_route": "CACHE_MISS",
+      "cache_hit": false,
+      "expected_cache_hit": false,
+      "rtt_ms": 722.68579993397,
+      "server_latency": {
+        "total_ms": 181.22,
+        "embedding_ms": 122.33,
+        "cache_lookup_ms": 58.7
+      },
+      "query_digest": "0e5d72a2e98f7798f83bc827362842748e982dd00b6f8ebd2cfa8c9859c79fe4"
+    },
+    {
+      "id": "MISS-04",
+      "category": "CONTROLLED_MISS",
+      "passed": true,
+      "routing_decision": "CACHE_MISS",
+      "expected_route": "CACHE_MISS",
+      "cache_hit": false,
+      "expected_cache_hit": false,
+      "rtt_ms": 703.2642001286149,
+      "server_latency": {
+        "total_ms": 170.82,
+        "embedding_ms": 126.34,
+        "cache_lookup_ms": 44.28
+      },
+      "query_digest": "b54f0eb41095d97525d7bd805fe2503f3d2beea0fa719ebd885f361dc94f10b0"
+    }
+  ]
+}
