@@ -1,0 +1,209 @@
+{
+  "clusters": [
+    {
+      "cluster_id": "cluster_hydration_wellness",
+      "cluster_name": "Hydration and General Wellness",
+      "description": "General hydration guidelines, daily fluid balance, and mild dehydration awareness for healthy adults.",
+      "candidate_gate_threshold": 0.70,
+      "entries": [
+        {
+          "entry_id": "hyd-001",
+          "approved_question": "How much water should an average healthy adult drink daily?",
+          "approved_answer": "According to general health guidelines from the National Academies and Mayo Clinic, an adequate daily fluid intake is roughly 3.7 liters (about 15.5 cups) for men and 2.7 liters (about 11.5 cups) for women from all beverages and moisture-rich foods. Individual needs vary based on climate, physical activity, and overall health.",
+          "source_type": "human_reviewed",
+          "review_status": "approved",
+          "source_url": "https://www.mayoclinic.org/healthy-lifestyle/nutrition-and-healthy-eating/in-depth/water/art-20044256",
+          "reviewed_by": "Dr. Sarah Chen, MD (Clinical Advisor)",
+          "reviewed_at": "2026-09-15T10:00:00Z",
+          "safety_category": "GENERAL_WELLNESS"
+        },
+        {
+          "entry_id": "hyd-002",
+          "approved_question": "What are common signs of mild dehydration in adults?",
+          "approved_answer": "Common early signs of mild dehydration include increased thirst, dry mouth, dark yellow or amber-colored urine, headache, mild fatigue, and dry skin. Drinking water promptly usually resolves mild dehydration.",
+          "source_type": "human_reviewed",
+          "review_status": "approved",
+          "source_url": "https://www.cdc.gov/healthy-weight-growth/water-nutrition/index.html",
+          "reviewed_by": "Dr. Sarah Chen, MD (Clinical Advisor)",
+          "reviewed_at": "2026-09-15T10:00:00Z",
+          "safety_category": "GENERAL_WELLNESS"
+        },
+        {
+          "entry_id": "hyd-003",
+          "approved_question": "Does drinking tea or coffee count toward daily hydration?",
+          "approved_answer": "Yes, moderate consumption of caffeinated drinks like coffee and tea contributes to your total fluid intake. While caffeine has a mild diuretic effect, the water volume consumed in these beverages outweighs fluid loss in habitual drinkers.",
+          "source_type": "human_reviewed",
+          "review_status": "approved",
+          "source_url": "https://www.nhs.uk/live-well/eat-well/food-guidelines-and-food-labels/water-drinks-nutrition/",
+          "reviewed_by": "Dr. Sarah Chen, MD (Clinical Advisor)",
+          "reviewed_at": "2026-09-15T10:00:00Z",
+          "safety_category": "GENERAL_WELLNESS"
+        }
+      ]
+    },
+    {
+      "cluster_id": "cluster_hypertension_lifestyle",
+      "cluster_name": "Blood Pressure & Cardiovascular Lifestyle",
+      "description": "General non-pharmacological lifestyle strategies and reference blood pressure categories for educational purposes.",
+      "candidate_gate_threshold": 0.72,
+      "entries": [
+        {
+          "entry_id": "bp-001",
+          "approved_question": "What is considered a normal blood pressure reading for an adult?",
+          "approved_answer": "According to the American Heart Association and WHO, a normal resting blood pressure for adults is typically defined as a systolic reading under 120 mm Hg and a diastolic reading under 80 mm Hg (< 120/80 mm Hg). Measurements consistently above this range warrant evaluation by a healthcare provider.",
+          "source_type": "human_reviewed",
+          "review_status": "approved",
+          "source_url": "https://www.heart.org/en/health-topics/high-blood-pressure/understanding-blood-pressure-readings",
+          "reviewed_by": "Dr. Rajesh Raman, MD (Cardiology Consultant)",
+          "reviewed_at": "2026-09-18T14:30:00Z",
+          "safety_category": "CARDIOVASCULAR_EDUCATION"
+        },
+        {
+          "entry_id": "bp-002",
+          "approved_question": "What lifestyle habits help maintain healthy blood pressure levels?",
+          "approved_answer": "Evidence-based non-drug habits that support healthy blood pressure include reducing dietary sodium, following a DASH-style diet rich in fruits and vegetables, engaging in at least 150 minutes of moderate aerobic exercise weekly, limiting alcohol, managing stress, and avoiding tobacco products.",
+          "source_type": "human_reviewed",
+          "review_status": "approved",
+          "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+          "reviewed_by": "Dr. Rajesh Raman, MD (Cardiology Consultant)",
+          "reviewed_at": "2026-09-18T14:30:00Z",
+          "safety_category": "CARDIOVASCULAR_EDUCATION"
+        },
+        {
+          "entry_id": "bp-003",
+          "approved_question": "How does dietary salt intake influence blood pressure?",
+          "approved_answer": "Excessive sodium intake causes the body to retain extra fluid, increasing blood volume and placing extra mechanical stress on blood vessel walls. The WHO recommends keeping sodium intake below 2,000 mg (about 5 grams of salt) daily.",
+          "source_type": "human_reviewed",
+          "review_status": "approved",
+          "source_url": "https://www.who.int/publications/i/item/9789240019904",
+          "reviewed_by": "Dr. Rajesh Raman, MD (Cardiology Consultant)",
+          "reviewed_at": "2026-09-18T14:30:00Z",
+          "safety_category": "CARDIOVASCULAR_EDUCATION"
+        }
+      ]
+    },
+    {
+      "cluster_id": "cluster_fever_general_care",
+      "cluster_name": "General Fever & Temperature Care",
+      "description": "General non-prescriptive principles of body temperature management and rest in adults.",
+      "candidate_gate_threshold": 0.70,
+      "entries": [
+        {
+          "entry_id": "fev-001",
+          "approved_question": "What body temperature is clinically defined as a fever in adults?",
+          "approved_answer": "In adults, an oral body temperature of 100.4°F (38.0°C) or higher is generally considered a fever. Fever is a natural biological defense mechanism indicating that the immune system is actively responding to an infection or inflammation.",
+          "source_type": "human_reviewed",
+          "review_status": "approved",
+          "source_url": "https://www.cdc.gov/clean-hands/about/index.html",
+          "reviewed_by": "Dr. Sarah Chen, MD (Clinical Advisor)",
+          "reviewed_at": "2026-09-20T11:00:00Z",
+          "safety_category": "GENERAL_INFECTION_CARE"
+        },
+        {
+          "entry_id": "fev-002",
+          "approved_question": "What supportive non-medicinal steps help soothe a mild fever in adults?",
+          "approved_answer": "Supportive comfort measures include staying well-hydrated with water and clear broths, resting in a comfortably cool room, wearing lightweight breathable clothing, and using a lukewarm damp cloth on the forehead. Avoid cold baths or ice, which can trigger shivering and raise internal core temperature.",
+          "source_type": "human_reviewed",
+          "review_status": "approved",
+          "source_url": "https://www.nhs.uk/conditions/fever-in-adults/",
+          "reviewed_by": "Dr. Sarah Chen, MD (Clinical Advisor)",
+          "reviewed_at": "2026-09-20T11:00:00Z",
+          "safety_category": "GENERAL_INFECTION_CARE"
+        },
+        {
+          "entry_id": "fev-003",
+          "approved_question": "When should an adult seek medical consultation for a fever?",
+          "approved_answer": "An adult should seek prompt medical evaluation if a fever exceeds 103°F (39.4°C), lasts longer than three consecutive days without improvement, or is accompanied by stiff neck, confusion, chest discomfort, or severe difficulty breathing.",
+          "source_type": "human_reviewed",
+          "review_status": "approved",
+          "source_url": "https://www.mayoclinic.org/diseases-conditions/fever/symptoms-causes/syc-20352759",
+          "reviewed_by": "Dr. Sarah Chen, MD (Clinical Advisor)",
+          "reviewed_at": "2026-09-20T11:00:00Z",
+          "safety_category": "GENERAL_INFECTION_CARE"
+        }
+      ]
+    },
+    {
+      "cluster_id": "cluster_migraine_headache_basics",
+      "cluster_name": "Headache Types & Environmental Triggers",
+      "description": "General differences between tension headaches and migraines, trigger awareness, and relaxation measures.",
+      "candidate_gate_threshold": 0.71,
+      "entries": [
+        {
+          "entry_id": "hd-001",
+          "approved_question": "What is the difference between a tension headache and a migraine?",
+          "approved_answer": "Tension-type headaches typically present as a dull, steady, band-like ache on both sides of the head without nausea. In contrast, migraines frequently present as moderate-to-severe throbbing pain, commonly localized to one side, and are often accompanied by light sensitivity, sound sensitivity, or nausea.",
+          "source_type": "human_reviewed",
+          "review_status": "approved",
+          "source_url": "https://www.nhs.uk/conditions/headaches/",
+          "reviewed_by": "Dr. Rajesh Raman, MD (Consultant)",
+          "reviewed_at": "2026-09-22T09:15:00Z",
+          "safety_category": "NEUROLOGICAL_BASICS"
+        },
+        {
+          "entry_id": "hd-002",
+          "approved_question": "What environmental factors commonly trigger migraine episodes?",
+          "approved_answer": "Commonly reported triggers include bright or flickering lights, loud noises, strong chemical odors, irregular sleep schedules, skipped meals, hormonal fluctuations, physical or psychological stress, and sudden weather or barometric pressure shifts.",
+          "source_type": "human_reviewed",
+          "review_status": "approved",
+          "source_url": "https://my.clevelandclinic.org/health/diseases/5005-migraine-headaches",
+          "reviewed_by": "Dr. Rajesh Raman, MD (Consultant)",
+          "reviewed_at": "2026-09-22T09:15:00Z",
+          "safety_category": "NEUROLOGICAL_BASICS"
+        },
+        {
+          "entry_id": "hd-003",
+          "approved_question": "What non-pharmacological comfort steps can help ease a mild headache?",
+          "approved_answer": "Resting in a quiet, darkened room, applying a cool compress to the forehead or neck, drinking a glass of water, practicing slow diaphragmatic breathing, and taking a break from digital screens can help relieve mild tension-related headache discomfort.",
+          "source_type": "human_reviewed",
+          "review_status": "approved",
+          "source_url": "https://www.mayoclinic.org/diseases-conditions/tension-headache/diagnosis-treatment/drc-20353982",
+          "reviewed_by": "Dr. Rajesh Raman, MD (Consultant)",
+          "reviewed_at": "2026-09-22T09:15:00Z",
+          "safety_category": "NEUROLOGICAL_BASICS"
+        }
+      ]
+    },
+    {
+      "cluster_id": "cluster_type2_diabetes_lifestyle",
+      "cluster_name": "Metabolic Health & Glycemic Awareness",
+      "description": "General nutrition principles, physical activity benefits, and lifestyle habits for metabolic well-being.",
+      "candidate_gate_threshold": 0.70,
+      "entries": [
+        {
+          "entry_id": "dia-001",
+          "approved_question": "What dietary principles support healthy blood sugar balance?",
+          "approved_answer": "Key dietary habits that support glycemic stability include prioritizing whole, fiber-rich carbohydrates (such as legumes, whole grains, and non-starchy vegetables), pairing carbohydrates with lean protein or healthy fats, and minimizing sugary beverages and refined carbohydrates.",
+          "source_type": "human_reviewed",
+          "review_status": "approved",
+          "source_url": "https://www.diabetes.org/healthy-living/recipes-nutrition",
+          "reviewed_by": "Dr. Sarah Chen, MD (Clinical Advisor)",
+          "reviewed_at": "2026-09-25T16:00:00Z",
+          "safety_category": "METABOLIC_WELLNESS"
+        },
+        {
+          "entry_id": "dia-002",
+          "approved_question": "How does regular physical exercise benefit insulin sensitivity?",
+          "approved_answer": "During muscle contraction, muscle cells absorb glucose from the bloodstream even without insulin. Regular aerobic exercise and resistance training increase the density of GLUT4 glucose transporters and improve overall insulin sensitivity for 24 to 48 hours following a workout.",
+          "source_type": "human_reviewed",
+          "review_status": "approved",
+          "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
+          "reviewed_by": "Dr. Sarah Chen, MD (Clinical Advisor)",
+          "reviewed_at": "2026-09-25T16:00:00Z",
+          "safety_category": "METABOLIC_WELLNESS"
+        },
+        {
+          "entry_id": "dia-003",
+          "approved_question": "What are common general symptoms of elevated blood sugar in adults?",
+          "approved_answer": "General signs associated with high blood sugar (hyperglycemia) include frequent urination (polyuria), persistent excessive thirst (polydipsia), unexplained fatigue, blurred vision, and dry mouth. Persistent symptoms warrant clinical blood glucose screening.",
+          "source_type": "human_reviewed",
+          "review_status": "approved",
+          "source_url": "https://www.cdc.gov/diabetes/basics/symptoms.html",
+          "reviewed_by": "Dr. Sarah Chen, MD (Clinical Advisor)",
+          "reviewed_at": "2026-09-25T16:00:00Z",
+          "safety_category": "METABOLIC_WELLNESS"
+        }
+      ]
+    }
+  ]
+}
