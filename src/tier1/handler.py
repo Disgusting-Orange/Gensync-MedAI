@@ -129,6 +129,7 @@ def lambda_handler(event: Dict[str, Any], context: Any = None) -> Dict[str, Any]
             "emergency_number": config.EMERGENCY_NUMBER,
             "referral_resources": triage_result.referral_links,
             "correlation_id": correlation_id,
+            "query_digest": query_sha256,
             "latency_ms": round(total_latency, 2)
         })
 
@@ -153,6 +154,7 @@ def lambda_handler(event: Dict[str, Any], context: Any = None) -> Dict[str, Any]
             "reason": triage_result.reason,
             "referral_resources": triage_result.referral_links,
             "correlation_id": correlation_id,
+            "query_digest": query_sha256,
             "latency_ms": round(total_latency, 2)
         })
 
@@ -209,6 +211,7 @@ def lambda_handler(event: Dict[str, Any], context: Any = None) -> Dict[str, Any]
                 "embedding_ms": round(embed_latency_ms, 2),
                 "cache_lookup_ms": round(cache_latency_ms, 2)
             },
+            "query_digest": query_sha256,
             "correlation_id": correlation_id
         })
 
@@ -242,5 +245,6 @@ def lambda_handler(event: Dict[str, Any], context: Any = None) -> Dict[str, Any]
             "embedding_ms": round(embed_latency_ms, 2),
             "cache_lookup_ms": round(cache_latency_ms, 2)
         },
+        "query_digest": query_sha256,
         "correlation_id": correlation_id
     })

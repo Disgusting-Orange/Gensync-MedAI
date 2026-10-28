@@ -46,9 +46,9 @@ class SemanticCacheEngine:
             try:
                 import boto3
                 self.dynamodb = boto3.resource("dynamodb", region_name=config.AWS_REGION)
-                # Verify table exists
+                # Verify table connectivity using scan with Limit=1 (avoids requiring DescribeTable permission)
                 tbl = self.dynamodb.Table(config.TABLE_CENTROIDS)
-                tbl.load()
+                tbl.scan(Limit=1)
                 self.use_dynamodb = True
                 logger.info(f"Connected to live DynamoDB tables: {config.TABLE_CENTROIDS}, {config.TABLE_CACHE}")
             except Exception as e:
