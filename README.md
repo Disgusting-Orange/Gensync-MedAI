@@ -11,19 +11,23 @@ GenSync-Cache investigates whether a serverless semantic cache equipped with a *
 
 ### Key Architectural Tenets:
 1. **Safety Before Retrieval**: Deterministic emergency and referral rules execute prior to embedding generation or cache lookup.
-2. **Emergency Routing**: Confirmed emergency symptoms route to immediate guidance (`EMERGENCY_NUMBER`, default `112`) and dispatch an operational SNS alert (`ClinicalEmergencyTriage`).
-3. **Professional Referral**: Pediatric, dosing, prescription, and pregnancy queries divert to verified referral paths.
-4. **Answer Trust Hierarchy**: Only human-reviewed entries are returned as trusted cached answers. SLM-generated answers are marked `UNVERIFIED` and placed in a pending review queue.
-5. **Zero Raw PHI Logging**: Audit records store only SHA-256 query digests.
+2. **Emergency Routing**: Confirmed emergency symptoms route to immediate guidance (`EMERGENCY_NUMBER`, default `112`) and dispatch an operational SNS alert (`ClinicalEmergencyTriage`). Zero cache or model access occurs.
+3. **Professional Referral**: Pediatric, dosing, prescription, and pregnancy queries divert to verified referral paths. Zero cache or model access occurs.
+4. **Two-Stage Clustered Retrieval**:
+   - **Stage 1**: Screen query vectors against cluster centroids in `gensync_cluster_centroids`.
+   - **Stage 2**: Query candidate partition entries from `gensync_semantic_query_cache` via standard DynamoDB Global Secondary Index (`cluster_id-index`).
+   - Fine-grained cosine similarity calculation and clinical compatibility checks occur inside the Lambda runtime.
+   - *Note: This design explicitly avoids unreleased or unsupported DynamoDB native vector index features, ensuring 100% provider and SDK compatibility.*
+5. **Answer Trust Hierarchy**: Only human-reviewed entries with verified institutional provenance are returned as trusted cached answers.
+6. **Zero Raw PHI Logging**: Audit records store only SHA-256 query digests.
 
 ---
 
 ## 2. Architecture Overview
 
 ```
-React Frontend -> API Gateway HTTP API -> Tier-1 Lambda (Python 3.11, INT8 ONNX) -> DynamoDB
-                                                                                -> SNS (Triage Alert)
-                                                                                -> (Optional) Tier-2 SLM
+React Frontend -> API Gateway HTTP API -> Tier-1 Lambda (Python 3.11, INT8 ONNX Layer) -> DynamoDB (Centroids & GSI Cache)
+                                                                                        -> SNS (Triage Alert)
 ```
 
 ---
@@ -33,7 +37,7 @@ React Frontend -> API Gateway HTTP API -> Tier-1 Lambda (Python 3.11, INT8 ONNX)
 This section outlines critical procedures to halt traffic, teardown infrastructure, and eliminate cloud spending.
 
 ### How to Stop Application Traffic
-1. **Immediate API Throttling**: In the AWS Console or via AWS CLI, set API Gateway route throttling to `0` RPS or disable the route:
+1. **Immediate API Throttling**: In the AWS Console or via AWS CLI, set API Gateway route throttling to `0` RPS:
    ```powershell
    aws apigatewayv2 update-stage --api-id <API_ID> --stage-name '$default' --default-route-settings "ThrottlingBurstLimit=0,ThrottlingRateLimit=0" --region ap-south-1
    ```
@@ -50,9 +54,9 @@ Run the provided automated teardown safeguards:
 The script requires explicit interactive confirmation (`yes`), executes `terraform destroy`, purges project ECR images, and audits remaining cloud resources.
 
 ### Important Billing Realities
-- **Budgets Are Not Hard Spending Caps**: An AWS Budget alert notifies you when spend exceeds a threshold (e.g., \$0.01 or \$1.00); it **does not** automatically stop AWS services or prevent further billing.
-- **Billing Data Delays**: AWS Cost Explorer and Free Tier metrics typically experience an **8 to 24-hour reporting delay**. A display of \$0.00 right now does not guarantee zero incurred charges for today's requests.
-- **Undeployed / Lingering Resources**: CloudWatch Log Groups, retained S3 buckets, and non-empty ECR repositories continue to incur storage fees even after Lambdas are deleted unless explicitly destroyed.
+- **Budgets Are Not Hard Spending Caps**: An AWS Budget alert notifies you when spend exceeds a threshold (e.g., \$0.01 or \$1.00); it **does not** automatically shut down AWS services.
+- **Billing Data Delays**: AWS Cost Explorer and Free Tier metrics typically experience an **8 to 24-hour reporting delay**.
+- **Undeployed / Lingering Resources**: CloudWatch Log Groups and retained resources continue to incur storage fees unless explicitly destroyed.
 
 ---
 
@@ -62,22 +66,10 @@ The script requires explicit interactive confirmation (`yes`), executes `terrafo
 - Python 3.11+
 - Node.js v18+ & npm
 - AWS CLI v2 (`aws configure` completed)
-- Terraform (install via `winget install HashiCorp.Terraform`)
+- Terraform v1.5+
 
 ### Initial Configuration
 Copy `.env.example` to `.env`:
 ```powershell
 Copy-Item .env.example .env
 ```
-
----
-
-## 5. Phased Roadmap & Gates
-
-- [x] **Phase 0**: Environment inspection, cost guards, and teardown safeguards. *(Current Phase)*
-- [ ] **Phase 1**: Database schema, approved seed dataset, embeddings, deterministic triage rules, and Tier-1 Lambda.
-- [ ] **Phase 2**: Optional Tier-2 SLM container (SmolLM-135M-Instruct).
-- [ ] **Phase 3**: Modular Terraform planning & approval gate.
-- [ ] **Phase 4**: Deployment & integration health verification.
-- [ ] **Phase 5**: Responsive React frontend application.
-- [ ] **Phase 6**: Adversarial benchmarking, latency evaluation, and final report.

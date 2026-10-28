@@ -3,7 +3,12 @@
 ## 1. Overview & Data Architecture
 
 GenSync-Cache manages clinical question-answering cache data across two primary engines:
-1. **Primary Production**: Amazon DynamoDB with single-table or decoupled entity structures.
+1. **Primary Production (Amazon DynamoDB)**:
+   - Uses a **Two-Stage Centroid-Partitioned Architecture** over standard DynamoDB tables.
+   - Stage 1 screens query vectors against cluster centroids in `gensync_cluster_centroids`.
+   - Stage 2 retrieves candidate records using a standard Global Secondary Index (`cluster_id-index`) on `gensync_semantic_query_cache`.
+   - Exact cosine similarity and clinical compatibility checks are computed inside the Tier-1 Lambda environment.
+   - **Architectural Clarification**: This design explicitly uses standard DynamoDB GSI partitioning rather than unsupported or unreleased native `vector_index` constructs, ensuring complete compatibility with the official HashiCorp AWS Terraform provider (`v5.100.0`) and standard AWS SDKs in `ap-south-1`.
 2. **Relational Fallback**: PostgreSQL / Neon with `pgvector` extension (documented in `db/schema.sql`).
 
 ---
@@ -24,19 +29,19 @@ Stores Stage 1 semantic cluster boundaries for coarse-grained candidate filterin
 | `updated_at` | `S` (ISO8601) | Timestamp of last recalculation |
 
 ### B. `gensync_semantic_query_cache`
-Stores approved, human-reviewed clinical questions and vetted answers.
+Stores approved clinical questions and vetted educational answers with traceable institutional provenance.
 
 | Attribute | DynamoDB Type | Description |
 | :--- | :--- | :--- |
 | `entry_id` (PK) | `S` (UUID) | Unique cache entry identifier |
-| `cluster_id` (GSI PK) | `S` (String) | Associated cluster for candidate partitioning |
-| `approved_question` | `S` (String) | Canonical human-reviewed query |
+| `cluster_id` (GSI PK) | `S` (String) | Associated cluster for candidate partitioning via `cluster_id-index` |
+| `approved_question` | `S` (String) | Canonical query |
 | `approved_answer` | `S` (String) | Vetted educational answer text |
 | `embedding` | `L` (List of Numbers) | 384-dimensional L2-normalized float vector |
 | `source_type` | `S` (String) | Enum: `seed`, `slm`, `human_reviewed` |
 | `review_status` | `S` (String) | Enum: `pending`, `approved`, `rejected` (Cache hits require `approved`) |
 | `source_url` | `S` (String) | Authoritative reference link (WHO, CDC, NHS, Mayo Clinic) |
-| `reviewed_by` | `S` (String) | Clinician identifier responsible for review |
+| `reviewed_by` | `S` (String) | Institutional review board / consensus guideline citation |
 | `reviewed_at` | `S` (ISO8601) | Review timestamp |
 | `content_version` | `S` (String) | Content revision tracking |
 | `safety_category` | `S` (String) | Clinical domain tag |
@@ -65,20 +70,3 @@ Quarantine storage for optional Tier-2 language model outputs.
 | `review_status` | `S` (String) | Starts as `pending`; only explicit approval promotes to cache |
 | `model_identifier` | `S` (String) | Model tag (e.g. `SmolLM-135M-Instruct-Q4_K_M`) |
 | `created_at` | `S` (ISO8601) | Generation timestamp |
-
----
-
-## 3. Centroid & Radius Mathematics
-
-For cluster $C_k = \{\mathbf{x}_1, \mathbf{x}_2, \dots, \mathbf{x}_m\}$ where each $\mathbf{x}_i \in \mathbb{R}^{384}$ is L2-normalized ($\|\mathbf{x}_i\|_2 = 1$):
-
-1. **Centroid Vector**:
-   $$\mathbf{c}_k = \frac{\sum_{i=1}^m \mathbf{x}_i}{\left\| \sum_{i=1}^m \mathbf{x}_i \right\|_2}$$
-
-2. **Cluster Radius**:
-   $$r_k = \max_{i \in \{1,\dots,m\}} \left( 1 - \mathbf{c}_k \cdot \mathbf{x}_i \right)$$
-   where $\mathbf{c}_k \cdot \mathbf{x}_i$ is the cosine similarity.
-
-3. **Stage 1 Pruning Criterion**:
-   For an incoming query vector $\mathbf{q}$, cluster $C_k$ is shortlisted as an eligible candidate if:
-   $$\mathbf{q} \cdot \mathbf{c}_k \ge \text{candidate\_gate\_threshold}_k$$

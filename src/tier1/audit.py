@@ -13,10 +13,24 @@ import json
 import logging
 import time
 import uuid
+from decimal import Decimal
 from typing import Dict, Any, Optional
 
 logger = logging.getLogger("gensync.tier1.audit")
 logger.setLevel(logging.INFO)
+
+
+def _convert_floats_to_decimal(item: Any) -> Any:
+    """
+    Recursively converts float types to Decimal for DynamoDB serialization.
+    """
+    if isinstance(item, float):
+        return Decimal(str(round(item, 4)))
+    if isinstance(item, dict):
+        return {k: _convert_floats_to_decimal(v) for k, v in item.items()}
+    if isinstance(item, list):
+        return [_convert_floats_to_decimal(x) for x in item]
+    return item
 
 
 def compute_query_hash(query: str) -> str:
@@ -115,15 +129,16 @@ def persist_audit_record(
         return False
 
     try:
+        clean_record = _convert_floats_to_decimal(record)
         if dynamodb_client is None:
             import boto3
             dynamodb = boto3.resource("dynamodb")
             table = dynamodb.Table(table_name)
-            table.put_item(Item=record)
+            table.put_item(Item=clean_record)
         else:
             dynamodb_client.put_item(
                 TableName=table_name,
-                Item={k: {"S": str(v)} for k, v in record.items()}
+                Item={k: {"S": str(v)} for k, v in clean_record.items()}
             )
         return True
     except Exception as e:
