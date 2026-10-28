@@ -26,11 +26,19 @@ This document logs every divergence from original design assumptions, along with
 
 ---
 
-### DEV-002: Existing AWS Budget Configuration
+### DEV-002: AWS Budget Configuration Verified
 - **Date Recorded**: 2026-10-28
-- **Original Requirement**: Create an AWS Budget with a \$0.01 threshold.
-- **Actual State**: An existing AWS Budget named `"My Zero-Spend Budget"` with a limit of \$1.00 USD already exists in the account (`471597060887`), currently tracking actual spend (\$0.00) and forecasted spend (\$0.096).
-- **Feasible Alternative / Resolution**:
-  - Recommend adding a dedicated budget `gensync-budget-1cent` ($0.01 limit) with the user's specific email alert, or updating the existing Zero-Spend budget notification subscriber.
-- **Approval Required**: User confirmation of alert recipient email address and explicit approval before modifying or creating budgets.
-- **Cost Impact**: First 2 action-enabled budgets are within the AWS Free Tier.
+- **Original Requirement**: Create an AWS Budget with a \$0.01 alert threshold and configured email address.
+- **Actual State**: An AWS Budget named `"My Zero-Spend Budget"` was inspected in account `471597060887` and already contains an active notification configured for `ACTUAL > $0.01` delivered to `kamaleshn2006@gmail.com`.
+- **Resolution**: Kept existing verified budget. No redundant budget created.
+- **Cost Impact**: Zero.
+
+---
+
+### DEV-003: CloudTrail Audit Delivery via Event History
+- **Date Recorded**: 2026-10-28
+- **Original Requirement**: Configure exactly one management-event CloudTrail trail.
+- **Actual State**: Verified that AWS CloudTrail default Event History is automatically active in `ap-south-1` (tested via `aws cloudtrail lookup-events`), logging all management events (e.g. `gensync-dev-admin` API calls) for 90 days at 100% zero cost. Creating a custom Trail requires an S3 bucket to store delivered log archives, which incurs continuous S3 storage fees and risk of orphaned bucket deletion blocks.
+- **Resolution**: Auditing for Phase 6 will utilize `aws cloudtrail lookup-events` over the free 90-day management event history.
+- **Cost Impact**: Eliminates S3 storage and API PUT fees.
+
