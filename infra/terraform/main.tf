@@ -207,7 +207,6 @@ resource "aws_lambda_function" "tier1_handler" {
 
   environment {
     variables = {
-      AWS_REGION                  = var.aws_region
       EMERGENCY_NUMBER            = var.emergency_number
       COSINE_THRESHOLD            = tostring(var.cosine_threshold)
       DYNAMODB_TABLE_CACHE        = aws_dynamodb_table.semantic_cache.name
