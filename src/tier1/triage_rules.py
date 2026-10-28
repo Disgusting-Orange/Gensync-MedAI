@@ -53,8 +53,9 @@ EMERGENCY_PATTERNS = {
         r"\b(having|suspect|signs\s+of)\s+a?\s*(heart\s+attack|myocardial\s+infarction)\b",
     ],
     "stroke_indicators": [
-        r"\b(face\s+droop|facial\s+drooping|arm\s+weakness|slurred\s+speech|speech\s+difficulty)\b",
+        r"\b(face\s+(?:is\s+)?droop|facial\s+droop(?:ing)?|arm\s+weakness|slurred\s+speech|speech\s+difficulty)\b",
         r"\b(sudden\s+numbness|sudden\s+loss\s+of\s+vision|sudden\s+inability\s+to\s+speak)\b",
+        r"\b(cannot\s+speak|unable\s+to\s+speak|cannot\s+(?:lift|move)\s+(?:her|his|my)\s+(?:right|left)?\s*arm)\b",
         r"\b(having|signs\s+of)\s+a?\s*(stroke|cerebrovascular\s+accident|tia|mini\s+stroke)\b",
     ],
     "severe_breathing_difficulty": [
@@ -63,9 +64,17 @@ EMERGENCY_PATTERNS = {
         r"\b(respiratory\s+failure|suffocation|stridor)\b",
     ],
     "suspected_overdose_poisoning": [
-        r"\b(swallowed|ingested|drank)\s+(poison|bleach|detergent|battery|pesticide|cleaner)\b",
+        r"\b(swallowed|ingested|drank|consumed)\s+(?:\w+\s+){0,3}(poison|bleach|detergent|battery|pesticide|cleaner|chemical|toxin)\b",
         r"\b(took\s+too\s+many|overdosed\s+on|overdose\s+of)\s+([a-z\s]+)\b",
         r"\b(acute\s+poisoning|toxic\s+ingestion)\b",
+    ],
+    "severe_headache_emergency": [
+        r"\b(thunderclap\s+headache|worst\s+headache\s+of\s+(?:my|his|her)\s+life)\b",
+        r"\b(severe\s+headache\s+with\s+(?:neck\s+stiffness|stiff\s+neck|confusion))\b",
+    ],
+    "hypertensive_crisis": [
+        r"\b(?:blood\s+pressure|bp)\s+(?:is\s+)?(?:over\s+|above\s+)?(?:1[8-9]\d|2\d{2})\s*/\s*(?:1[1-9]\d|2\d{2})\b",
+        r"\b(?:1[8-9]\d|2\d{2})\s*/\s*(?:1[1-9]\d|2\d{2})\s+(?:with\s+|and\s+)(?:blurry\s+vision|headache|chest\s+pain)\b",
     ],
     "severe_uncontrolled_bleeding": [
         r"\b(uncontrolled|spurting|gushing|severe|massive)\s+(?:arterial\s+)?(bleeding|blood\s+loss|hemorrhage)\b",
@@ -100,14 +109,20 @@ REFERRAL_PATTERNS = {
         r"\b(metformin|amlodipine|lisinopril|atorvastatin|levothyroxine|omeprazole)\b",
         r"\b(amoxicillin|azithromycin|ciprofloxacin|doxycycline|augmentin|antibiotic)\b",
         r"\b(warfarin|apixaban|clopidogrel|heparin|eliquis|blood\s+thinner)\b",
-        r"\b(insulin|glipizide|empagliflozin|ozempic|wegovy|saxenda)\b",
+        r"\b(insulin|lantus|glargine|novolog|humalog|glipizide|empagliflozin|ozempic|wegovy|saxenda)\b",
         r"\b(prednisone|dexamethasone|methylprednisolone|steroid\s+dose)\b",
         r"\b(sertraline|fluoxetine|alprazolam|lorazepam|clonazepam|escitalopram)\b",
+        r"\b(tramadol|oxycodone|hydrocodone|codeine|morphine)\b",
     ],
     "medication_dosing_and_changes": [
         r"\b(how\s+many\s+mg|what\s+dose|dosage\s+for|can\s+i\s+take\s+\d+\s*mg)\b",
         r"\b(double\s+my\s+dose|increase\s+my\s+dose|stop\s+taking|missed\s+a?\s*dose)\b",
-        r"\b(how\s+often\s+to\s+take|take\s+on\s+empty\s+stomach|adjust\s+my\s+medication)\b",
+        r"\b(how\s+often\s+to\s+take|take\s+on\s+empty\s+stomach|adjust\s+my\s+medication|how\s+much\s+[a-z]+\s+should\s+i\s+inject)\b",
+    ],
+    "chronic_and_unexplained_symptoms": [
+        r"\b(?:lasting|lasted|for)\s+(?:more\s+than\s+)?(?:\d+\s*(?:weeks?|months?))\b",
+        r"\b(?:unexplained\s+(?:\d+\s*(?:kg|lbs|pounds)\s+)?weight\s+loss)\b",
+        r"\b(?:blood\s+sugar|glucose)\s+(?:fasting\s+)?(?:is\s+)?(?:consistently\s+)?(?:over\s+|above\s+)?(?:2[5-9]\d|3\d{2})\b",
     ],
     "drug_interactions": [
         r"\b(can\s+i\s+take\s+[\w\s]+\s+with\s+[\w\s]+|interaction\s+between)\b",
