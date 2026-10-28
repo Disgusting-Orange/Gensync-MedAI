@@ -180,6 +180,16 @@ resource "aws_iam_role_policy_attachment" "tier1_attach" {
 # ------------------------------------------------------------------------------
 # 5. Compute Layer: Tier-1 Serverless Lambda (Python 3.11, INT8 ONNX)
 # ------------------------------------------------------------------------------
+
+# Lambda Layer for Linux x86_64 ML Runtime Dependencies (onnxruntime, tokenizers, numpy)
+resource "aws_lambda_layer_version" "tier1_dependencies" {
+  filename            = "${path.module}/../../build/tier1_layer.zip"
+  layer_name          = "gensync-tier1-dependencies"
+  description         = "Linux x86_64 ML runtime dependencies (onnxruntime, tokenizers, numpy)"
+  compatible_runtimes = ["python3.11"]
+  source_code_hash    = filebase64sha256("${path.module}/../../build/tier1_layer.zip")
+}
+
 resource "aws_lambda_function" "tier1_handler" {
   function_name    = "gensync-tier1-handler"
   description      = "GenSync-Cache Tier-1 Safety & Semantic Retrieval Handler"
@@ -190,6 +200,10 @@ resource "aws_lambda_function" "tier1_handler" {
   timeout          = var.lambda_timeout
   filename         = "${path.module}/../../build/tier1_lambda.zip"
   source_code_hash = filebase64sha256("${path.module}/../../build/tier1_lambda.zip")
+
+  layers = [
+    aws_lambda_layer_version.tier1_dependencies.arn
+  ]
 
   environment {
     variables = {

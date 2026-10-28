@@ -3,13 +3,16 @@ GenSync-Cache: Two-Stage Semantic Cache Engine
 
 Workflow:
 1. Stage 1: Coarse candidate pruning using Cluster Centroids and Gate Thresholds.
+   - Fetches centroid vectors from DynamoDB table `gensync_cluster_centroids` (or local seed fallback).
 2. Stage 2: Fine-grained Vector Search across shortlisted candidate clusters.
+   - Queries candidate entries from DynamoDB table `gensync_semantic_query_cache` via `cluster_id-index` GSI.
 3. Similarity Evaluation: Cosine similarity >= COSINE_THRESHOLD (default 0.92).
 4. Clinical Compatibility Verification: Rule-based check against semantic drift.
 5. Trust Verification: Entry must have review_status == 'approved'.
 """
 
 import json
+import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
@@ -17,25 +20,45 @@ import numpy as np
 from src.tier1.config import config
 from src.tier1.clinical_gate import ClinicalCompatibilityGate, CompatibilityResult
 
+logger = logging.getLogger("gensync.tier1.cache")
+
 
 class SemanticCacheEngine:
     """
-    Two-stage semantic cache evaluator.
-    Supports in-memory cached seed data (for local testing) and DynamoDB (for AWS deployment).
+    Two-stage semantic cache evaluator supporting:
+    - Real Amazon DynamoDB querying (in cloud deployment)
+    - Embedded JSON dataset (for offline local development & pytest execution)
     """
 
     def __init__(
         self,
         cosine_threshold: float = config.COSINE_THRESHOLD,
         embedded_seed_path: Optional[str] = None,
-        dynamodb_client: Any = None
+        dynamodb_resource: Any = None
     ):
         self.cosine_threshold = cosine_threshold
         self.compatibility_gate = ClinicalCompatibilityGate(strict_numeric_match=True)
-        self.dynamodb_client = dynamodb_client
-        
-        # Load local embedded seed data if available
-        self.clusters: List[Dict[str, Any]] = []
+        self.dynamodb = dynamodb_resource
+        self.use_dynamodb = False
+
+        # Attempt to initialize boto3 DynamoDB resource if in AWS or configured
+        if self.dynamodb is None:
+            try:
+                import boto3
+                self.dynamodb = boto3.resource("dynamodb", region_name=config.AWS_REGION)
+                # Verify table exists
+                tbl = self.dynamodb.Table(config.TABLE_CENTROIDS)
+                tbl.load()
+                self.use_dynamodb = True
+                logger.info(f"Connected to live DynamoDB tables: {config.TABLE_CENTROIDS}, {config.TABLE_CACHE}")
+            except Exception as e:
+                logger.debug(f"Live DynamoDB not connected ({e}). Using embedded seed fallback.")
+                self.use_dynamodb = False
+        else:
+            self.use_dynamodb = True
+
+        # Load local embedded seed data fallback
+        self.local_clusters: List[Dict[str, Any]] = []
         if embedded_seed_path is None:
             default_path = Path(__file__).resolve().parents[2] / "db" / "seed_data_embedded.json"
             if default_path.exists():
@@ -44,7 +67,33 @@ class SemanticCacheEngine:
         if embedded_seed_path and Path(embedded_seed_path).exists():
             with open(embedded_seed_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                self.clusters = data.get("clusters", [])
+                self.local_clusters = data.get("clusters", [])
+
+    def fetch_centroids(self) -> List[Dict[str, Any]]:
+        """
+        Retrieves cluster centroids from DynamoDB table or local seed cache.
+        """
+        if self.use_dynamodb:
+            try:
+                table = self.dynamodb.Table(config.TABLE_CENTROIDS)
+                response = table.scan()
+                items = response.get("Items", [])
+                if items:
+                    formatted = []
+                    for it in items:
+                        # Convert DynamoDB decimal to float
+                        centroid_vec = [float(x) for x in it.get("centroid_vector", [])]
+                        formatted.append({
+                            "cluster_id": it["cluster_id"],
+                            "cluster_name": it.get("cluster_name", ""),
+                            "centroid_vector": centroid_vec,
+                            "candidate_gate_threshold": float(it.get("candidate_gate_threshold", config.STAGE1_FALLBACK_THRESHOLD))
+                        })
+                    return formatted
+            except Exception as e:
+                logger.warning(f"DynamoDB centroid scan failed ({e}). Falling back to local data.")
+
+        return self.local_clusters
 
     def stage1_candidate_clusters(
         self,
@@ -52,21 +101,61 @@ class SemanticCacheEngine:
     ) -> List[Tuple[Dict[str, Any], float]]:
         """
         Stage 1: Filters clusters whose centroid similarity exceeds candidate_gate_threshold.
-        Returns list of (cluster_dict, centroid_similarity) sorted descending by similarity.
+        Returns list of (cluster_dict, centroid_similarity) sorted descending.
         """
+        clusters = self.fetch_centroids()
         eligible: List[Tuple[Dict[str, Any], float]] = []
 
-        for cluster in self.clusters:
+        for cluster in clusters:
             centroid = np.array(cluster["centroid_vector"], dtype=np.float32)
-            # Dot product equals cosine similarity because both are L2 unit vectors
             sim = float(np.dot(query_vector, centroid))
-            threshold = cluster.get("candidate_gate_threshold", config.STAGE1_FALLBACK_THRESHOLD)
+            threshold = float(cluster.get("candidate_gate_threshold", config.STAGE1_FALLBACK_THRESHOLD))
 
             if sim >= threshold:
                 eligible.append((cluster, sim))
 
         eligible.sort(key=lambda x: x[1], reverse=True)
         return eligible
+
+    def fetch_cluster_entries(self, cluster_id: str) -> List[Dict[str, Any]]:
+        """
+        Queries entries belonging to cluster_id from DynamoDB via GSI, or from local fallback.
+        """
+        if self.use_dynamodb:
+            try:
+                table = self.dynamodb.Table(config.TABLE_CACHE)
+                # Query GSI cluster_id-index
+                response = table.query(
+                    IndexName="cluster_id-index",
+                    KeyConditionExpression="cluster_id = :cid",
+                    ExpressionAttributeValues={":cid": cluster_id}
+                )
+                items = response.get("Items", [])
+                if items:
+                    formatted = []
+                    for it in items:
+                        vec = [float(x) for x in it.get("embedding", [])]
+                        formatted.append({
+                            "entry_id": it.get("entry_id"),
+                            "cluster_id": it.get("cluster_id"),
+                            "approved_question": it.get("approved_question"),
+                            "approved_answer": it.get("approved_answer"),
+                            "embedding": vec,
+                            "review_status": it.get("review_status"),
+                            "source_url": it.get("source_url"),
+                            "reviewed_by": it.get("reviewed_by"),
+                            "reviewed_at": it.get("reviewed_at"),
+                            "safety_category": it.get("safety_category")
+                        })
+                    return formatted
+            except Exception as e:
+                logger.warning(f"DynamoDB query on cluster {cluster_id} failed ({e}). Falling back to local data.")
+
+        # Local fallback search
+        for c in self.local_clusters:
+            if c["cluster_id"] == cluster_id:
+                return c.get("entries", [])
+        return []
 
     def query_cache(
         self,
@@ -96,7 +185,10 @@ class SemanticCacheEngine:
         best_cluster_id: Optional[str] = None
 
         for cluster, _ in candidate_clusters:
-            for entry in cluster.get("entries", []):
+            cluster_id = cluster["cluster_id"]
+            entries = self.fetch_cluster_entries(cluster_id)
+
+            for entry in entries:
                 # Trust Invariant: Only human-reviewed entries may serve as trusted cache answers
                 if entry.get("review_status") != "approved":
                     continue
@@ -107,7 +199,7 @@ class SemanticCacheEngine:
                 if sim > max_similarity:
                     max_similarity = sim
                     best_candidate = entry
-                    best_cluster_id = cluster["cluster_id"]
+                    best_cluster_id = cluster_id
 
         # 3. Similarity Threshold Evaluation
         if best_candidate is None or max_similarity < self.cosine_threshold:

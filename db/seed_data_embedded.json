@@ -412,7 +412,7 @@
           "source_type": "human_reviewed",
           "review_status": "approved",
           "source_url": "https://www.mayoclinic.org/healthy-lifestyle/nutrition-and-healthy-eating/in-depth/water/art-20044256",
-          "reviewed_by": "Dr. Sarah Chen, MD (Clinical Advisor)",
+          "reviewed_by": "Institutional Clinical Reference: Mayo Clinic Health Information Review Board",
           "reviewed_at": "2026-09-15T10:00:00Z",
           "safety_category": "GENERAL_WELLNESS",
           "embedding": [
@@ -810,7 +810,7 @@
           "source_type": "human_reviewed",
           "review_status": "approved",
           "source_url": "https://www.cdc.gov/healthy-weight-growth/water-nutrition/index.html",
-          "reviewed_by": "Dr. Sarah Chen, MD (Clinical Advisor)",
+          "reviewed_by": "Institutional Clinical Reference: CDC Division of Nutrition, Physical Activity, and Obesity",
           "reviewed_at": "2026-09-15T10:00:00Z",
           "safety_category": "GENERAL_WELLNESS",
           "embedding": [
@@ -1208,7 +1208,7 @@
           "source_type": "human_reviewed",
           "review_status": "approved",
           "source_url": "https://www.nhs.uk/live-well/eat-well/food-guidelines-and-food-labels/water-drinks-nutrition/",
-          "reviewed_by": "Dr. Sarah Chen, MD (Clinical Advisor)",
+          "reviewed_by": "Institutional Clinical Reference: NHS National Health Guidelines (Eat Well Guidance)",
           "reviewed_at": "2026-09-15T10:00:00Z",
           "safety_category": "GENERAL_WELLNESS",
           "embedding": [
@@ -2005,7 +2005,7 @@
           "source_type": "human_reviewed",
           "review_status": "approved",
           "source_url": "https://www.heart.org/en/health-topics/high-blood-pressure/understanding-blood-pressure-readings",
-          "reviewed_by": "Dr. Rajesh Raman, MD (Cardiology Consultant)",
+          "reviewed_by": "Institutional Clinical Reference: American Heart Association (AHA) Science Advisory",
           "reviewed_at": "2026-09-18T14:30:00Z",
           "safety_category": "CARDIOVASCULAR_EDUCATION",
           "embedding": [
@@ -2403,7 +2403,7 @@
           "source_type": "human_reviewed",
           "review_status": "approved",
           "source_url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
-          "reviewed_by": "Dr. Rajesh Raman, MD (Cardiology Consultant)",
+          "reviewed_by": "Institutional Clinical Reference: WHO Department of Noncommunicable Diseases",
           "reviewed_at": "2026-09-18T14:30:00Z",
           "safety_category": "CARDIOVASCULAR_EDUCATION",
           "embedding": [
@@ -2801,7 +2801,7 @@
           "source_type": "human_reviewed",
           "review_status": "approved",
           "source_url": "https://www.who.int/publications/i/item/9789240019904",
-          "reviewed_by": "Dr. Rajesh Raman, MD (Cardiology Consultant)",
+          "reviewed_by": "Institutional Clinical Reference: WHO Technical Guidance on Sodium Intake",
           "reviewed_at": "2026-09-18T14:30:00Z",
           "safety_category": "CARDIOVASCULAR_EDUCATION",
           "embedding": [
@@ -3598,7 +3598,7 @@
           "source_type": "human_reviewed",
           "review_status": "approved",
           "source_url": "https://www.cdc.gov/clean-hands/about/index.html",
-          "reviewed_by": "Dr. Sarah Chen, MD (Clinical Advisor)",
+          "reviewed_by": "Institutional Clinical Reference: CDC Clinical Guidance & Temperature Definitions",
           "reviewed_at": "2026-09-20T11:00:00Z",
           "safety_category": "GENERAL_INFECTION_CARE",
           "embedding": [
@@ -3996,7 +3996,7 @@
           "source_type": "human_reviewed",
           "review_status": "approved",
           "source_url": "https://www.nhs.uk/conditions/fever-in-adults/",
-          "reviewed_by": "Dr. Sarah Chen, MD (Clinical Advisor)",
+          "reviewed_by": "Institutional Clinical Reference: NHS National Health Overview: Fever in Adults",
           "reviewed_at": "2026-09-20T11:00:00Z",
           "safety_category": "GENERAL_INFECTION_CARE",
           "embedding": [
@@ -4394,7 +4394,7 @@
           "source_type": "human_reviewed",
           "review_status": "approved",
           "source_url": "https://www.mayoclinic.org/diseases-conditions/fever/symptoms-causes/syc-20352759",
-          "reviewed_by": "Dr. Sarah Chen, MD (Clinical Advisor)",
+          "reviewed_by": "Institutional Clinical Reference: Mayo Clinic Clinical Guidance & Patient Care Advisory",
           "reviewed_at": "2026-09-20T11:00:00Z",
           "safety_category": "GENERAL_INFECTION_CARE",
           "embedding": [
@@ -5191,7 +5191,7 @@
           "source_type": "human_reviewed",
           "review_status": "approved",
           "source_url": "https://www.nhs.uk/conditions/headaches/",
-          "reviewed_by": "Dr. Rajesh Raman, MD (Consultant)",
+          "reviewed_by": "Institutional Clinical Reference: NHS Neurological Conditions Clinical Guidance",
           "reviewed_at": "2026-09-22T09:15:00Z",
           "safety_category": "NEUROLOGICAL_BASICS",
           "embedding": [
@@ -5589,7 +5589,7 @@
           "source_type": "human_reviewed",
           "review_status": "approved",
           "source_url": "https://my.clevelandclinic.org/health/diseases/5005-migraine-headaches",
-          "reviewed_by": "Dr. Rajesh Raman, MD (Consultant)",
+          "reviewed_by": "Institutional Clinical Reference: Cleveland Clinic Center for Neurological Restoration",
           "reviewed_at": "2026-09-22T09:15:00Z",
           "safety_category": "NEUROLOGICAL_BASICS",
           "embedding": [
@@ -5987,7 +5987,7 @@
           "source_type": "human_reviewed",
           "review_status": "approved",
           "source_url": "https://www.mayoclinic.org/diseases-conditions/tension-headache/diagnosis-treatment/drc-20353982",
-          "reviewed_by": "Dr. Rajesh Raman, MD (Consultant)",
+          "reviewed_by": "Institutional Clinical Reference: Mayo Clinic Neurology Clinical Reference",
           "reviewed_at": "2026-09-22T09:15:00Z",
           "safety_category": "NEUROLOGICAL_BASICS",
           "embedding": [
@@ -6784,7 +6784,7 @@
           "source_type": "human_reviewed",
           "review_status": "approved",
           "source_url": "https://www.diabetes.org/healthy-living/recipes-nutrition",
-          "reviewed_by": "Dr. Sarah Chen, MD (Clinical Advisor)",
+          "reviewed_by": "Institutional Clinical Reference: American Diabetes Association (ADA) Nutrition Consensus",
           "reviewed_at": "2026-09-25T16:00:00Z",
           "safety_category": "METABOLIC_WELLNESS",
           "embedding": [
@@ -7182,7 +7182,7 @@
           "source_type": "human_reviewed",
           "review_status": "approved",
           "source_url": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
-          "reviewed_by": "Dr. Sarah Chen, MD (Clinical Advisor)",
+          "reviewed_by": "Institutional Clinical Reference: WHO Factsheet on Diabetes & Physical Activity Guidelines",
           "reviewed_at": "2026-09-25T16:00:00Z",
           "safety_category": "METABOLIC_WELLNESS",
           "embedding": [
@@ -7580,7 +7580,7 @@
           "source_type": "human_reviewed",
           "review_status": "approved",
           "source_url": "https://www.cdc.gov/diabetes/basics/symptoms.html",
-          "reviewed_by": "Dr. Sarah Chen, MD (Clinical Advisor)",
+          "reviewed_by": "Institutional Clinical Reference: CDC National Diabetes Statistics & Clinical Indicators",
           "reviewed_at": "2026-09-25T16:00:00Z",
           "safety_category": "METABOLIC_WELLNESS",
           "embedding": [
