@@ -144,3 +144,47 @@ def persist_audit_record(
     except Exception as e:
         logger.warning(f"DynamoDB audit write skipped/failed: {str(e)}")
         return False
+
+
+def persist_review_queue_entry(
+    query_sha256: str,
+    ai_answer: str,
+    correlation_id: str,
+    table_name: str,
+    model_name: str = "GenSync-MedAI Clinical SLM",
+    dynamodb_client: Any = None
+) -> bool:
+    """
+    Persists AI-generated answer to DynamoDB SLM review queue for physician curation.
+    """
+    if not table_name:
+        return False
+
+    item = {
+        "queue_id": str(uuid.uuid4()),
+        "query_sha256": query_sha256,
+        "ai_generated_answer": ai_answer[:2000],
+        "model_name": model_name,
+        "status": "PENDING_CLINICAL_SIGNOFF",
+        "correlation_id": correlation_id,
+        "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    }
+
+    try:
+        clean_record = _convert_floats_to_decimal(item)
+        if dynamodb_client is None:
+            import boto3
+            dynamodb = boto3.resource("dynamodb")
+            table = dynamodb.Table(table_name)
+            table.put_item(Item=clean_record)
+        else:
+            dynamodb_client.put_item(
+                TableName=table_name,
+                Item={k: {"S": str(v)} for k, v in clean_record.items()}
+            )
+        logger.info(f"Enqueued AI generated answer to review queue: {table_name}")
+        return True
+    except Exception as e:
+        logger.warning(f"Failed to enqueue to review queue: {str(e)}")
+        return False
+

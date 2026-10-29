@@ -224,11 +224,17 @@ export default function DashboardView({
                   {response.routing_decision === 'PROFESSIONAL_REFERRAL' && (
                     <div className="result-inner-referral">
                       <div className="result-badge-row">
-                        <span className="result-pill referral-pill">CLINICAL REFERRAL REQUIRED</span>
+                        <span className="result-pill referral-pill">
+                          {response.reason?.includes('PEDIATRIC') || response.referral_message?.includes('PEDIATRIC')
+                            ? 'PEDIATRIC REVIEW / CLINICAL REFERRAL'
+                            : 'CLINICAL REFERRAL REQUIRED'}
+                        </span>
                       </div>
                       <h4 className="referral-title">{response.referral_message || response.reason}</h4>
                       <p className="referral-desc">
-                        This inquiry involves contraindications or specialized medication that requires licensed clinical consultation.
+                        {response.reason?.includes('PEDIATRIC') || response.referral_message?.includes('PEDIATRIC')
+                          ? 'Inquiries involving pediatric liquid formulations (such as P500 syrup, suspensions, or drops) require direct physician examination to determine exact body-weight dosage (mg/kg).'
+                          : 'This inquiry involves contraindications or specialized medication that requires licensed clinical consultation.'}
                       </p>
                       {response.referral_resources && (
                         <div className="verified-referral-links">
@@ -267,17 +273,46 @@ export default function DashboardView({
                     </div>
                   )}
 
-                  {/* Case 4: CACHE MISS */}
+                  {/* Case 4: CACHE MISS (AI Model Synthesis or Controlled Refusal) */}
                   {response.routing_decision === 'CACHE_MISS' && !response.cache_hit && (
-                    <div className="result-inner-miss">
-                      <div className="result-badge-row">
-                        <span className="result-pill miss-pill">CONTROLLED CACHE MISS · SAFE REFUSAL</span>
+                    response.ai_generated ? (
+                      <div className="result-inner-ai-synthesis">
+                        <div className="result-badge-row">
+                          <span className="result-pill ai-pill">AI CLINICAL MODEL SYNTHESIS</span>
+                          <span className="similarity-pill">
+                            Tier-2 Fallback Model · Serverless SLM
+                          </span>
+                        </div>
+                        <div className="ai-answer-markdown" style={{ whiteSpace: 'pre-line', marginTop: '10px', fontSize: '13.5px', lineHeight: '1.6' }}>
+                          {response.answer}
+                        </div>
+                        {response.clinical_guidance && (
+                          <div className="ai-guidance-card" style={{ marginTop: '12px', padding: '10px 14px', background: 'var(--color-bg-surface-interactive, #f0fdf4)', borderRadius: '8px', borderLeft: '3px solid #10b981' }}>
+                            <strong style={{ display: 'block', fontSize: '12px', color: '#047857', marginBottom: '4px' }}>CLINICAL GUIDANCE</strong>
+                            <p style={{ fontSize: '13px', margin: 0 }}>{response.clinical_guidance}</p>
+                          </div>
+                        )}
+                        {response.warning_signs && (
+                          <div className="ai-warning-card" style={{ marginTop: '8px', padding: '10px 14px', background: 'var(--color-bg-surface-interactive, #fffbeb)', borderRadius: '8px', borderLeft: '3px solid #f59e0b' }}>
+                            <strong style={{ display: 'block', fontSize: '12px', color: '#b45309', marginBottom: '4px' }}>MONITORING & RED FLAGS</strong>
+                            <p style={{ fontSize: '13px', margin: 0 }}>{response.warning_signs}</p>
+                          </div>
+                        )}
+                        <p className="miss-sub" style={{ marginTop: '12px' }}>
+                          Zero dedicated vector DB: This answer was synthesized by GenSync-MedAI Tier-2 model and enqueued to <code>gensync_slm_review_queue</code> for physician review.
+                        </p>
                       </div>
-                      <h4 className="miss-body-text">{response.answer}</h4>
-                      <p className="miss-sub">
-                        Zero hallucination policy: This query was queued to <code>gensync_slm_review_queue</code> for physician review.
-                      </p>
-                    </div>
+                    ) : (
+                      <div className="result-inner-miss">
+                        <div className="result-badge-row">
+                          <span className="result-pill miss-pill">CONTROLLED CACHE MISS · SAFE REFUSAL</span>
+                        </div>
+                        <h4 className="miss-body-text">{response.answer}</h4>
+                        <p className="miss-sub">
+                          Zero hallucination policy: This query was queued to <code>gensync_slm_review_queue</code> for physician review.
+                        </p>
+                      </div>
+                    )
                   )}
 
                   {/* Observability Telemetry Strip */}

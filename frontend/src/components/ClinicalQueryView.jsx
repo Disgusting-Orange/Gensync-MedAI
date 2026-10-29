@@ -203,7 +203,11 @@ export default function ClinicalQueryView({
               <div className="result-alert-box referral" role="region" aria-label="Professional Referral Notice">
                 <div className="alert-top">
                   <AlertTriangle size={20} className="alert-icon amber" />
-                  <span className="alert-title referral">Professional Clinical Referral Required</span>
+                  <span className="alert-title referral">
+                    {response.reason?.includes('PEDIATRIC') || response.referral_message?.includes('PEDIATRIC')
+                      ? 'Professional Clinical Referral Required · Pediatric Review'
+                      : 'Professional Clinical Referral Required'}
+                  </span>
                 </div>
 
                 <div className="alert-body referral">
@@ -295,22 +299,56 @@ export default function ClinicalQueryView({
               </div>
             )}
 
-            {/* State 4: Safe Cache Miss */}
+            {/* State 4: Safe Cache Miss (AI Model Synthesis or Controlled Refusal) */}
             {response.routing_decision === 'CACHE_MISS' && (
-              <div className="result-alert-box miss" role="region" aria-label="Controlled Fallback Cache Miss">
-                <div className="alert-top">
-                  <HelpCircle size={20} className="alert-icon gray" />
-                  <span className="alert-title miss">Controlled Cache Miss · Safe Refusal</span>
-                </div>
+              response.ai_generated ? (
+                <div className="result-alert-box ai-synthesis" role="region" aria-label="AI Clinical Model Synthesis">
+                  <div className="alert-top">
+                    <Zap size={20} className="alert-icon blue" />
+                    <span className="alert-title ai-synthesis">AI Clinical Model Synthesis (Tier-2 Fallback)</span>
+                    <span className="hit-score-badge blue">
+                      {response.model_name || 'GenSync Clinical SLM'}
+                    </span>
+                  </div>
 
-                <div className="miss-answer-body">{response.answer}</div>
+                  <div className="cached-answer-body ai-body" style={{ whiteSpace: 'pre-line', marginTop: '10px', fontSize: '13.5px', lineHeight: '1.6' }}>
+                    {response.answer}
+                  </div>
 
-                <div className="miss-details-bar">
-                  Refusal Reason: <code>{response.reason || 'BELOW_COSINE_THRESHOLD'}</code>
-                  <br />
-                  Safety Invariant: Unverified SLM synthesis is explicitly disabled. No hallucinations served.
+                  {response.clinical_guidance && (
+                    <div className="ai-guidance-callout" style={{ marginTop: '12px', padding: '10px 14px', background: 'var(--color-bg-surface-interactive, #f0fdf4)', borderRadius: '8px', borderLeft: '3px solid #10b981' }}>
+                      <strong style={{ display: 'block', fontSize: '12px', color: '#047857', marginBottom: '4px' }}>CLINICAL GUIDANCE</strong>
+                      <p style={{ fontSize: '13px', margin: 0 }}>{response.clinical_guidance}</p>
+                    </div>
+                  )}
+
+                  {response.warning_signs && (
+                    <div className="ai-warning-callout" style={{ marginTop: '8px', padding: '10px 14px', background: 'var(--color-bg-surface-interactive, #fffbeb)', borderRadius: '8px', borderLeft: '3px solid #f59e0b' }}>
+                      <strong style={{ display: 'block', fontSize: '12px', color: '#b45309', marginBottom: '4px' }}>WHEN TO SEEK IMMEDIATE CARE</strong>
+                      <p style={{ fontSize: '13px', margin: 0 }}>{response.warning_signs}</p>
+                    </div>
+                  )}
+
+                  <div className="alert-footer-note miss" style={{ marginTop: '12px' }}>
+                    <span>Zero Dedicated Vector DB Invariant:</span> Synthesized by Tier-2 clinical model and enqueued to <code>gensync_slm_review_queue</code> in DynamoDB for physician sign-off.
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="result-alert-box miss" role="region" aria-label="Controlled Fallback Cache Miss">
+                  <div className="alert-top">
+                    <HelpCircle size={20} className="alert-icon gray" />
+                    <span className="alert-title miss">Controlled Cache Miss · Safe Refusal</span>
+                  </div>
+
+                  <div className="miss-answer-body">{response.answer}</div>
+
+                  <div className="miss-details-bar">
+                    Refusal Reason: <code>{response.reason || 'BELOW_COSINE_THRESHOLD'}</code>
+                    <br />
+                    Safety Invariant: Unverified speculation blocked. Queued for physician review.
+                  </div>
+                </div>
+              )
             )}
 
             {/* Scientific Observability Drawer */}

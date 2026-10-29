@@ -103,7 +103,12 @@ REFERRAL_PATTERNS = {
     "pediatric_infant_care": [
         r"\b(my\s+baby|my\s+infant|my\s+newborn|my\s+toddler|my\s+child|my\s+kid)\b",
         r"\b(\d+[\s-]*(month|week|day|year)[\s-]*old)\b",
-        r"\b(pediatric|infant\s+dose|baby\s+fever|child\s+symptoms)\b",
+        r"\b(pediatric|paediatric|infant\s+dose|baby\s+fever|child\s+symptoms)\b",
+        r"\b(p500|p250|p120|calpol|crocin|paracetamol|pcm|tylenol|ibuprofen)\s+(?:syrup|suspension|drops|liquid)\b",
+        r"\b(?:syrup|suspension|drops|liquid)\s+(?:dosage|dose|for\s+kids|for\s+child|for\s+baby|for\s+infant)\b",
+        r"\b(?:dosage|dose)\s+(?:for|of)\s+.*?(?:syrup|suspension|drops|p500|p250|p120|calpol|crocin)\b",
+        r"\b(p500|p250|p120)\s+(?:dosage|dose|syrup|tablet)?\b",
+        r"\b(?:syrup|suspension|pediatric\s+drops)\b",
     ],
     "prescription_medications": [
         r"\b(metformin|amlodipine|lisinopril|atorvastatin|levothyroxine|omeprazole)\b",
@@ -224,19 +229,32 @@ class DeterministicTriageEngine:
                     matched_referral_snippets.append(match.group(0))
 
         if matched_referral_categories:
-            primary_reason = matched_referral_categories[0]
+            is_pediatric = "pediatric_infant_care" in matched_referral_categories
+            if is_pediatric:
+                msg = (
+                    "PROFESSIONAL CLINICAL REFERRAL / PEDIATRIC REVIEW REQUIRED: Queries involving pediatric liquid "
+                    "formulations (such as P500 syrup, suspensions, or drops) and child weight-dependent "
+                    "medications require direct doctor or pharmacist evaluation. Generating automated dosage "
+                    "for pediatric syrups carries acute risk of fatal toxicity or underdosing without exact "
+                    "patient weight (mg/kg). Please consult a licensed pediatrician or healthcare clinic immediately."
+                )
+                reason_str = "PEDIATRIC_REVIEW_REQUIRED: Pediatric formulation or child dosing inquiry detected."
+            else:
+                msg = (
+                    "PROFESSIONAL CLINICAL REFERRAL: This query involves patient-specific dosing, "
+                    "prescription medications, pregnancy, or individual diagnosis. "
+                    "Automated cached answers are not permitted for high-risk clinical inquiries. "
+                    "Please consult a licensed doctor, pharmacist, or official healthcare facility directly."
+                )
+                reason_str = f"Matched professional referral categories: {', '.join(set(matched_referral_categories))}"
+
             return TriageResult(
                 routing_decision="PROFESSIONAL_REFERRAL",
                 cache_allowed=False,
                 model_allowed=False,
-                reason=f"Matched professional referral categories: {', '.join(set(matched_referral_categories))}",
+                reason=reason_str,
                 matched_patterns=matched_referral_snippets,
-                user_message=(
-                    "PROFESSIONAL CLINICAL REFERRAL: This query involves patient-specific dosing, "
-                    "pediatric care, prescription medications, pregnancy, or individual diagnosis. "
-                    "Automated cached answers are not permitted for high-risk clinical inquiries. "
-                    "Please consult a licensed doctor, pharmacist, or official healthcare facility directly."
-                ),
+                user_message=msg,
                 referral_links=VERIFIED_REFERRAL_RESOURCES
             )
 
