@@ -7,18 +7,19 @@ import {
   Lock,
   PhoneCall,
   CheckCircle2,
-  FileCheck,
+  ExternalLink,
+  Info,
 } from 'lucide-react';
 
 const EMERGENCY_RULES = [
-  { id: 'EM-01', name: 'Severe Crushing Chest Pain', pattern: 'severe|crushing|squeezing chest pain / radiating to left arm', priority: 1 },
-  { id: 'EM-02', name: 'Stroke FAST Indicators', pattern: 'facial droop | arm weakness | slurred speech | sudden numbness', priority: 1 },
-  { id: 'EM-03', name: 'Respiratory Failure & Stridor', pattern: 'cannot breathe | choking | throat closing | cyanosis | stridor', priority: 1 },
-  { id: 'EM-04', name: 'Suspected Acute Poisoning', pattern: 'swallowed | drank | ingested pesticide | bleach | poison | cleaner', priority: 1 },
-  { id: 'EM-05', name: 'Severe Arterial Bleeding', pattern: 'uncontrolled | spurting | arterial bleeding | hemorrhage | vomit blood', priority: 1 },
-  { id: 'EM-06', name: 'Anaphylaxis', pattern: 'anaphylaxis | lip swelling | tongue swelling with wheezing / hives', priority: 1 },
-  { id: 'EM-07', name: 'Loss of Consciousness & Seizure', pattern: 'unresponsive | continuous seizure | passed out and not waking up', priority: 1 },
-  { id: 'EM-08', name: 'Self-Harm & Suicidal Ideation', pattern: 'kill myself | end my life | suicide | slit wrist | overdose to die', priority: 1 },
+  { id: 'EM-01', name: 'Severe Crushing Chest Pain', pattern: 'severe | crushing | squeezing chest pain / radiating to left arm', priority: 1, routing: 'Emergency 112' },
+  { id: 'EM-02', name: 'Stroke FAST Indicators', pattern: 'facial droop | arm weakness | slurred speech | sudden numbness', priority: 1, routing: 'Emergency 112' },
+  { id: 'EM-03', name: 'Respiratory Failure & Stridor', pattern: 'cannot breathe | choking | throat closing | cyanosis | stridor', priority: 1, routing: 'Emergency 112' },
+  { id: 'EM-04', name: 'Suspected Acute Poisoning', pattern: 'swallowed | drank | ingested pesticide | bleach | poison | cleaner', priority: 1, routing: 'Poison Center / 112' },
+  { id: 'EM-05', name: 'Severe Arterial Bleeding', pattern: 'uncontrolled | spurting | arterial bleeding | hemorrhage | vomit blood', priority: 1, routing: 'Trauma Unit / 112' },
+  { id: 'EM-06', name: 'Anaphylaxis', pattern: 'anaphylaxis | lip swelling | tongue swelling with wheezing / hives', priority: 1, routing: 'Emergency 112' },
+  { id: 'EM-07', name: 'Loss of Consciousness & Seizure', pattern: 'unresponsive | continuous seizure | passed out and not waking up', priority: 1, routing: 'Emergency 112' },
+  { id: 'EM-08', name: 'Self-Harm & Suicidal Ideation', pattern: 'kill myself | end my life | suicide | slit wrist | overdose to die', priority: 1, routing: 'Kiran Helpline 1800-599-0019' },
 ];
 
 const REFERRAL_RULES = [
@@ -33,70 +34,82 @@ const REFERRAL_RULES = [
 
 export default function SafetyMonitorView({ emergencyNumber = '112' }) {
   return (
-    <div className="safety-monitor-view">
-      {/* 1. Safety Invariants Banner */}
+    <div className="safety-monitor-view-container">
+      {/* 1. Hero Card */}
       <div className="safety-hero-card">
-        <div className="hero-icon-wrap">
-          <ShieldAlert size={28} className="hero-icon" />
-        </div>
-        <div className="hero-content">
-          <h3>Deterministic Safety Gating (Pre-Retrieval)</h3>
-          <p>
-            Safety rules execute <strong>prior</strong> to any vector generation, distance calculation, or cache lookup.
-            Queries matching emergency or referral criteria bypass semantic caching completely (0 ms vector latency).
-          </p>
-        </div>
-        <div className="hero-badges">
-          <span className="hero-pill green">100% Deterministic</span>
-          <span className="hero-pill red">Zero LLM In Triage</span>
-        </div>
-      </div>
-
-      {/* 2. Top Metric Cards */}
-      <div className="safety-stats-grid">
-        <div className="stat-card">
-          <div className="stat-title">EMERGENCY GATE ACCURACY</div>
-          <div className="stat-val red">100.0%</div>
-          <div className="stat-sub">8 / 8 Adversarial Inquiries Caught</div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-title">REFERRAL GATE ACCURACY</div>
-          <div className="stat-val amber">100.0%</div>
-          <div className="stat-sub">6 / 6 Clinical Referrals Diverted</div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-title">ZERO FALSE CACHE HITS</div>
-          <div className="stat-val green">0.0%</div>
-          <div className="stat-sub">0 Unsafe Answers Served</div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-title">SNS TRIAGE TOPIC</div>
-          <div className="stat-val cyan">Active</div>
-          <div className="stat-sub">ClinicalEmergencyTriage</div>
-        </div>
-      </div>
-
-      {/* 3. Emergency Rules Table */}
-      <div className="rules-section-card">
-        <div className="rules-card-header">
-          <div>
-            <h4>Emergency Triage Regex Engine (High Priority)</h4>
-            <p>Directs patient to {emergencyNumber} emergency hotline and publishes SNS escalation</p>
+        <div className="safety-hero-content">
+          <div className="safety-title-group">
+            <div className="safety-icon-circle">
+              <ShieldAlert size={24} className="safety-primary-icon" />
+            </div>
+            <div>
+              <h3>Deterministic Safety Monitor (Pre-Retrieval)</h3>
+              <p>
+                Deterministic keyword and regex rules execute <strong>prior</strong> to any vector generation or database access.
+                Queries matching acute emergency or clinical referral criteria bypass semantic caching completely (0 ms lookup latency).
+              </p>
+            </div>
           </div>
-          <span className="rule-badge red">8 Active Categories</span>
+          <div className="safety-badges-row">
+            <span className="safety-pill green">
+              <CheckCircle2 size={13} /> 100% Deterministic
+            </span>
+            <span className="safety-pill red">
+              <AlertTriangle size={13} /> Zero LLM in Triage
+            </span>
+            <span className="safety-pill cyan">
+              <PhoneCall size={13} /> Dial {emergencyNumber}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Top Stats Grid (4 Cards) */}
+      <div className="safety-kpi-grid">
+        <div className="safety-kpi-card">
+          <span className="kpi-card-lbl">EMERGENCY GATE ACCURACY</span>
+          <div className="kpi-card-val red">100.0%</div>
+          <span className="kpi-card-sub">8 / 8 Life-Threatening Inquiries Caught</span>
         </div>
 
-        <div className="table-responsive">
-          <table className="rules-table">
+        <div className="safety-kpi-card">
+          <span className="kpi-card-lbl">REFERRAL GATE ACCURACY</span>
+          <div className="kpi-card-val amber">100.0%</div>
+          <span className="kpi-card-sub">6 / 6 Contraindications Routed</span>
+        </div>
+
+        <div className="safety-kpi-card">
+          <span className="kpi-card-lbl">TRIAGE EVALUATION LATENCY</span>
+          <div className="kpi-card-val green">0.06 ms</div>
+          <span className="kpi-card-sub">Pure In-Memory Regex Match</span>
+        </div>
+
+        <div className="safety-kpi-card">
+          <span className="kpi-card-lbl">SNS TRIAGE ESCALATION</span>
+          <div className="kpi-card-val purple">Active</div>
+          <span className="kpi-card-sub">Topic: ClinicalEmergencyTriage</span>
+        </div>
+      </div>
+
+      {/* 3. Emergency Rules Catalog Table */}
+      <div className="rules-table-card">
+        <div className="table-card-header">
+          <div className="card-title-group">
+            <AlertTriangle size={18} className="table-title-icon red" />
+            <h4>Emergency Triage Rules Catalog (Priority 1 &bull; Instant 112 Referral)</h4>
+          </div>
+          <span className="table-sub-badge red">8 Active Emergency Rules</span>
+        </div>
+
+        <div className="table-responsive-wrapper">
+          <table className="clinical-data-table">
             <thead>
               <tr>
                 <th>Rule ID</th>
-                <th>Category Name</th>
-                <th>Deterministic Expression Sample</th>
-                <th>Action</th>
+                <th>Clinical Syndrome</th>
+                <th>Trigger Patterns</th>
+                <th>Priority</th>
+                <th>Action Protocol</th>
               </tr>
             </thead>
             <tbody>
@@ -104,8 +117,13 @@ export default function SafetyMonitorView({ emergencyNumber = '112' }) {
                 <tr key={r.id}>
                   <td><code>{r.id}</code></td>
                   <td><strong>{r.name}</strong></td>
-                  <td><code className="regex-code">{r.pattern}</code></td>
-                  <td><span className="badge-action-red">Bypass Cache & Alert</span></td>
+                  <td><code className="pattern-code">{r.pattern}</code></td>
+                  <td><span className="priority-badge p1">P1 Critical</span></td>
+                  <td>
+                    <span className="routing-badge emergency">
+                      <PhoneCall size={12} /> {r.routing}
+                    </span>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -113,24 +131,25 @@ export default function SafetyMonitorView({ emergencyNumber = '112' }) {
         </div>
       </div>
 
-      {/* 4. Professional Referral Rules Table */}
-      <div className="rules-section-card">
-        <div className="rules-card-header">
-          <div>
-            <h4>Professional Referral Gates (Pre-Retrieval)</h4>
-            <p>Diverts dosing, pediatric, pregnancy, and drug queries to verified clinical portals</p>
+      {/* 4. Professional Referral Rules Catalog Table */}
+      <div className="rules-table-card">
+        <div className="table-card-header">
+          <div className="card-title-group">
+            <ShieldCheck size={18} className="table-title-icon amber" />
+            <h4>Professional Clinical Referral Rules (Safe Provider Escalation)</h4>
           </div>
-          <span className="rule-badge amber">7 Active Categories</span>
+          <span className="table-sub-badge amber">7 Active Referral Rules</span>
         </div>
 
-        <div className="table-responsive">
-          <table className="rules-table">
+        <div className="table-responsive-wrapper">
+          <table className="clinical-data-table">
             <thead>
               <tr>
                 <th>Rule ID</th>
-                <th>Category Name</th>
-                <th>Clinical Trigger Scope</th>
-                <th>Target Referral</th>
+                <th>Contraindication Domain</th>
+                <th>Trigger Patterns</th>
+                <th>Target Provider</th>
+                <th>Safety Behavior</th>
               </tr>
             </thead>
             <tbody>
@@ -138,8 +157,13 @@ export default function SafetyMonitorView({ emergencyNumber = '112' }) {
                 <tr key={r.id}>
                   <td><code>{r.id}</code></td>
                   <td><strong>{r.name}</strong></td>
-                  <td><code className="regex-code">{r.pattern}</code></td>
-                  <td><span className="badge-action-amber">{r.routing}</span></td>
+                  <td><code className="pattern-code">{r.pattern}</code></td>
+                  <td><strong>{r.routing}</strong></td>
+                  <td>
+                    <span className="routing-badge referral">
+                      Cache Bypassed &bull; Verified Links
+                    </span>
+                  </td>
                 </tr>
               ))}
             </tbody>

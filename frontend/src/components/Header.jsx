@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronDown, Sun } from 'lucide-react';
+import { ChevronDown, Sun, Moon } from 'lucide-react';
 
 const VIEW_TITLES = {
   dashboard: 'Clinical Safety Overview & Telemetry',
@@ -12,7 +12,13 @@ const VIEW_TITLES = {
   settings: 'Console Settings & Parameters',
 };
 
-export default function Header({ activeView, setActiveView, connectionStatus }) {
+export default function Header({
+  activeView,
+  setActiveView,
+  connectionStatus,
+  theme = 'light',
+  onToggleTheme,
+}) {
   const currentDateStr = 'Wed, 29 Oct 2026 01:24 IST';
   const currentTitle = VIEW_TITLES[activeView] || VIEW_TITLES.dashboard;
 
@@ -32,9 +38,21 @@ export default function Header({ activeView, setActiveView, connectionStatus }) 
 
         {/* Backend Connectivity Status Pill */}
         <div className={`header-pill connection-pill ${connectionStatus}`}>
-          <span className={`status-dot ${connectionStatus === 'online' ? 'green pulsing' : connectionStatus === 'checking' ? 'amber' : 'red'}`} />
+          <span
+            className={`status-dot ${
+              connectionStatus === 'online'
+                ? 'green pulsing'
+                : connectionStatus === 'checking'
+                ? 'amber'
+                : 'red'
+            }`}
+          />
           <span className="pill-text">
-            {connectionStatus === 'online' ? 'Backend Connected' : connectionStatus === 'checking' ? 'Connecting...' : 'Disconnected'}
+            {connectionStatus === 'online'
+              ? 'Backend Connected'
+              : connectionStatus === 'checking'
+              ? 'Connecting...'
+              : 'Disconnected'}
           </span>
         </div>
       </div>
@@ -43,14 +61,15 @@ export default function Header({ activeView, setActiveView, connectionStatus }) 
       <div className="header-right-group">
         <span className="header-timestamp">{currentDateStr}</span>
 
-        {/* Theme Toggle Button */}
+        {/* Theme Toggle Button (Light / Dark Mode) */}
         <button
           type="button"
-          className="header-icon-btn"
-          title="Toggle color theme"
-          aria-label="Toggle theme"
+          className="header-icon-btn theme-toggle-btn"
+          title={theme === 'dark' ? 'Switch to Light Clinical Theme' : 'Switch to Dark Obsidian Theme'}
+          aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+          onClick={onToggleTheme}
         >
-          <Sun size={17} />
+          {theme === 'dark' ? <Sun size={17} className="theme-icon sun" /> : <Moon size={17} className="theme-icon moon" />}
         </button>
 
         {/* Researcher User Profile Menu */}

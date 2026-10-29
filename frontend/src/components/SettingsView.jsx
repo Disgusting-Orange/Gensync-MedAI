@@ -1,5 +1,16 @@
 import React, { useState } from 'react';
-import { Settings, Server, Sliders, ShieldAlert, Database, RefreshCw } from 'lucide-react';
+import {
+  Settings,
+  Server,
+  Sliders,
+  ShieldAlert,
+  Database,
+  RefreshCw,
+  CheckCircle2,
+  PhoneCall,
+  Save,
+  RotateCcw,
+} from 'lucide-react';
 
 export default function SettingsView({
   apiEndpoint,
@@ -29,29 +40,50 @@ export default function SettingsView({
   };
 
   return (
-    <div className="settings-view">
-      <div className="settings-card">
-        <div className="card-header">
-          <Settings size={20} className="icon cyan" />
-          <div>
-            <h3>Console & Endpoint Configuration</h3>
-            <p>Customize the remote API Gateway and emergency dispatch settings</p>
+    <div className="settings-view-container">
+      {/* 1. Header Hero Card */}
+      <div className="settings-hero-card">
+        <div className="settings-hero-content">
+          <div className="card-title-group">
+            <div className="settings-icon-circle">
+              <Settings size={24} className="settings-primary-icon" />
+            </div>
+            <div>
+              <h3>Console Settings &amp; Telemetry Switchboard</h3>
+              <p>Configure API Gateway routing endpoints, emergency dispatch numbers, and view cloud environment metrics.</p>
+            </div>
+          </div>
+          <div className="settings-badges-row">
+            <span className="set-pill green">
+              <CheckCircle2 size={13} /> {connectionStatus === 'online' ? 'ap-south-1 Connected' : 'Checking...'}
+            </span>
+            <span className="set-pill blue">
+              <Server size={13} /> AWS Account 471597060887
+            </span>
           </div>
         </div>
+      </div>
 
-        <form onSubmit={handleSave} className="settings-form">
+      {/* 2. Settings Form Card */}
+      <div className="settings-form-card">
+        <div className="form-card-header">
+          <Sliders size={18} className="sliders-icon" />
+          <h4>Endpoint &amp; Dispatch Parameters</h4>
+        </div>
+
+        <form onSubmit={handleSave} className="settings-form-block">
           <div className="form-group">
-            <label htmlFor="api-endpoint-input">AWS API Gateway Endpoint (HTTPS)</label>
+            <label htmlFor="api-endpoint-input">AWS API Gateway Endpoint (HTTPS POST)</label>
             <input
               id="api-endpoint-input"
               type="url"
-              className="settings-input"
+              className="settings-text-input"
               value={customEndpoint}
               onChange={(e) => setCustomEndpoint(e.target.value)}
               required
             />
-            <span className="input-help">
-              Default live ingress: <code>https://cd4xfmh22k.execute-api.ap-south-1.amazonaws.com/query</code>
+            <span className="form-helper-text">
+              Direct connection to <code>cd4xfmh22k.execute-api.ap-south-1.amazonaws.com</code>.
             </span>
           </div>
 
@@ -60,77 +92,63 @@ export default function SettingsView({
             <input
               id="emergency-number-input"
               type="text"
-              className="settings-input"
+              className="settings-text-input"
               value={customEmergency}
               onChange={(e) => setCustomEmergency(e.target.value)}
               required
             />
-            <span className="input-help">
-              Default national emergency service number for India: <code>112</code> (or 911 for US, 999 for UK).
-            </span>
-          </div>
-
-          <div className="form-group">
-            <label>Cosine Similarity Threshold (Read-Only Calibrated Value)</label>
-            <input
-              type="text"
-              className="settings-input"
-              value="0.92 (Strict Precision Mode)"
-              disabled
-            />
-            <span className="input-help">
-              Enforced server-side in Lambda: Cosine similarity must be $\ge 0.92$ to prevent clinical semantic drift.
+            <span className="form-helper-text">
+              Standard Indian emergency services dispatcher: <code>112</code> (ERSS).
             </span>
           </div>
 
           <div className="form-actions-row">
             <button type="submit" className="save-settings-btn">
-              <span>Save Configuration</span>
+              <Save size={15} /> Save Changes
             </button>
             <button type="button" className="reset-settings-btn" onClick={handleReset}>
-              <RefreshCw size={13} />
-              <span>Reset to Defaults</span>
+              <RotateCcw size={15} /> Reset to Defaults
             </button>
-            {saved && <span className="save-indicator">✓ Settings updated</span>}
+            {saved && (
+              <span className="save-success-tag">
+                <CheckCircle2 size={14} /> Settings Saved Successfully!
+              </span>
+            )}
           </div>
         </form>
       </div>
 
-      {/* Cloud Environment Details */}
-      <div className="env-details-card">
-        <h4>Deployed AWS Infrastructure (ap-south-1)</h4>
-        <div className="env-grid">
-          <div className="env-box">
-            <span className="lbl">AWS ACCOUNT</span>
-            <span className="val"><code>471597060887</code></span>
+      {/* 3. AWS Cloud Telemetry Card */}
+      <div className="cloud-telemetry-card">
+        <div className="telemetry-card-header">
+          <Server size={18} className="server-icon" />
+          <h4>Target Cloud Infrastructure Summary</h4>
+        </div>
+
+        <div className="telemetry-specs-grid">
+          <div className="telemetry-spec-box">
+            <span className="spec-lbl">Target AWS Region</span>
+            <strong className="spec-val">ap-south-1 (Mumbai)</strong>
           </div>
-          <div className="env-box">
-            <span className="lbl">REGION</span>
-            <span className="val"><code>ap-south-1 (Mumbai)</code></span>
+          <div className="telemetry-spec-box">
+            <span className="spec-lbl">API Gateway Protocol</span>
+            <strong className="spec-val">HTTP API v2 ($default)</strong>
           </div>
-          <div className="env-box">
-            <span className="lbl">TIER-1 LAMBDA</span>
-            <span className="val"><code>gensync-tier1-handler</code></span>
+          <div className="telemetry-spec-box">
+            <span className="spec-lbl">Lambda Runtime</span>
+            <strong className="spec-val">Python 3.11 (512 MB)</strong>
           </div>
-          <div className="env-box">
-            <span className="lbl">DYNAMODB GSI CACHE</span>
-            <span className="val"><code>gensync_semantic_query_cache</code></span>
+          <div className="telemetry-spec-box">
+            <span className="spec-lbl">Storage Engine</span>
+            <strong className="spec-val">DynamoDB (PAY_PER_REQUEST)</strong>
           </div>
-          <div className="env-box">
-            <span className="lbl">CENTROIDS TABLE</span>
-            <span className="val"><code>gensync_cluster_centroids</code></span>
+          <div className="telemetry-spec-box">
+            <span className="spec-lbl">Emergency Topic</span>
+            <strong className="spec-val">ClinicalEmergencyTriage</strong>
           </div>
-          <div className="env-box">
-            <span className="lbl">SNS ESCALATION TOPIC</span>
-            <span className="val"><code>ClinicalEmergencyTriage</code></span>
-          </div>
-          <div className="env-box">
-            <span className="lbl">BUDGET SAFEGUARD</span>
-            <span className="val green">Active ($0.01 limit alert)</span>
-          </div>
-          <div className="env-box">
-            <span className="lbl">CURRENT SPEND</span>
-            <span className="val green">$0.00 USD (Always Free)</span>
+          <div className="telemetry-spec-box">
+            <span className="spec-lbl">Monthly Budget Ceiling</span>
+            <strong className="spec-val">$0.01 Alert Threshold</strong>
           </div>
         </div>
       </div>

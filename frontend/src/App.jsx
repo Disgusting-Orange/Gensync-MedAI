@@ -31,6 +31,27 @@ async function computeSha256(text) {
 }
 
 export default function App() {
+  const [theme, setTheme] = useState(() => {
+    try {
+      return localStorage.getItem('gensync_theme') || 'light';
+    } catch {
+      return 'light';
+    }
+  });
+
+  useEffect(() => {
+    try {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('gensync_theme', theme);
+    } catch (e) {
+      console.warn('Theme storage unavailable', e);
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+  };
+
   const [activeView, setActiveView] = useState('dashboard');
   const [apiEndpoint, setApiEndpoint] = useState(DEFAULT_API_ENDPOINT);
   const [emergencyNumber, setEmergencyNumber] = useState('112');
@@ -164,6 +185,8 @@ export default function App() {
           setActiveView={setActiveView}
           connectionStatus={connectionStatus}
           emergencyNumber={emergencyNumber}
+          theme={theme}
+          onToggleTheme={toggleTheme}
         />
 
         {/* Dynamic View Rendering */}
