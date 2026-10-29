@@ -179,42 +179,106 @@ class SemanticCacheEngine:
     ) -> Dict[str, Any]:
         """
         Executes full two-stage lookup, similarity evaluation, and clinical gating.
+        Includes case-insensitive normalized matching and full-table approved candidate scanning.
         """
-        # 1. Stage 1 Pruning
-        candidate_clusters = self.stage1_candidate_clusters(query_vector)
-        if not candidate_clusters:
-            return {
-                "cache_hit": False,
-                "routing_decision": "CACHE_MISS",
-                "reason": "STAGE1_NO_CANDIDATE_CLUSTERS",
-                "similarity_score": 0.0,
-                "matched_entry": None,
-                "candidate_cluster_ids": []
-            }
+        import re
 
-        shortlisted_cluster_ids = [c[0]["cluster_id"] for c in candidate_clusters]
+        # Gather approved candidate entries
+        entries: List[Dict[str, Any]] = []
+        shortlisted_cluster_ids: List[str] = []
 
-        # 2. Stage 2 Fine-Grained Search across shortlisted clusters
+        if self.use_dynamodb:
+            try:
+                table = self.dynamodb.Table(config.TABLE_CACHE)
+                resp = table.scan()
+                for it in resp.get("Items", []):
+                    if it.get("review_status") == "approved":
+                        vec = [float(x) for x in it.get("embedding", [])]
+                        entries.append({
+                            "entry_id": it.get("entry_id"),
+                            "cluster_id": it.get("cluster_id"),
+                            "approved_question": it.get("approved_question"),
+                            "approved_answer": it.get("approved_answer"),
+                            "embedding": vec,
+                            "review_status": it.get("review_status"),
+                            "source_url": it.get("source_url"),
+                            "reviewed_by": it.get("reviewed_by"),
+                            "reviewed_at": it.get("reviewed_at"),
+                            "safety_category": it.get("safety_category")
+                        })
+            except Exception as e:
+                logger.warning(f"DynamoDB scan error: {e}")
+
+        # If not using DynamoDB or empty, fallback to Stage 1 cluster pruning
+        if not entries:
+            candidate_clusters = self.stage1_candidate_clusters(query_vector)
+            if not candidate_clusters:
+                return {
+                    "cache_hit": False,
+                    "routing_decision": "CACHE_MISS",
+                    "reason": "STAGE1_NO_CANDIDATE_CLUSTERS",
+                    "similarity_score": 0.0,
+                    "matched_entry": None,
+                    "candidate_cluster_ids": []
+                }
+            shortlisted_cluster_ids = [c[0]["cluster_id"] for c in candidate_clusters]
+            for cluster, _ in candidate_clusters:
+                entries.extend(self.fetch_cluster_entries(cluster["cluster_id"]))
+
+        # FAST PATH: Case-insensitive, punctuation-stripped normalized text match (ONLY approved entries)
+        norm_query = re.sub(r"[^a-z0-9\s]", "", raw_query.lower()).strip()
+        for entry in entries:
+            if entry.get("review_status") != "approved":
+                continue
+            norm_approved = re.sub(r"[^a-z0-9\s]", "", entry.get("approved_question", "").lower()).strip()
+            if norm_query and norm_query == norm_approved:
+                if self.use_dynamodb and entry.get("entry_id"):
+                    try:
+                        table = self.dynamodb.Table(config.TABLE_CACHE)
+                        now_ts = int(time.time())
+                        table.update_item(
+                            Key={"entry_id": entry["entry_id"]},
+                            UpdateExpression="ADD access_count :inc SET last_accessed_at = :ts",
+                            ExpressionAttributeValues={":inc": Decimal("1"), ":ts": Decimal(str(now_ts))}
+                        )
+                    except Exception:
+                        pass
+
+                return {
+                    "cache_hit": True,
+                    "routing_decision": "SAFE_CACHE_CANDIDATE",
+                    "reason": "VERIFIED_CACHE_HIT",
+                    "match_reasoning": "Exact normalized text concordance (case & punctuation insensitive) with approved entry.",
+                    "similarity_score": 1.0,
+                    "threshold_used": self.cosine_threshold,
+                    "matched_cluster_id": entry.get("cluster_id"),
+                    "matched_entry": {
+                        "entry_id": entry.get("entry_id"),
+                        "approved_question": entry.get("approved_question"),
+                        "approved_answer": entry.get("approved_answer"),
+                        "source_url": entry.get("source_url"),
+                        "reviewed_by": entry.get("reviewed_by"),
+                        "reviewed_at": entry.get("reviewed_at"),
+                        "safety_category": entry.get("safety_category")
+                    }
+                }
+
+        # 2. Fine-Grained Vector Similarity Search across candidates
         best_candidate: Optional[Dict[str, Any]] = None
         max_similarity: float = -1.0
         best_cluster_id: Optional[str] = None
 
-        for cluster, _ in candidate_clusters:
-            cluster_id = cluster["cluster_id"]
-            entries = self.fetch_cluster_entries(cluster_id)
+        for entry in entries:
+            if entry.get("review_status") != "approved" or not entry.get("embedding"):
+                continue
 
-            for entry in entries:
-                # Trust Invariant: Only human-reviewed entries may serve as trusted cache answers
-                if entry.get("review_status") != "approved":
-                    continue
+            entry_vector = np.array(entry["embedding"], dtype=np.float32)
+            sim = float(np.dot(query_vector, entry_vector))
 
-                entry_vector = np.array(entry["embedding"], dtype=np.float32)
-                sim = float(np.dot(query_vector, entry_vector))
-
-                if sim > max_similarity:
-                    max_similarity = sim
-                    best_candidate = entry
-                    best_cluster_id = cluster_id
+            if sim > max_similarity:
+                max_similarity = sim
+                best_candidate = entry
+                best_cluster_id = entry.get("cluster_id")
 
         # 3. Similarity Threshold Evaluation
         if best_candidate is None or max_similarity < self.cosine_threshold:
@@ -247,7 +311,7 @@ class SemanticCacheEngine:
                 "candidate_cluster_ids": shortlisted_cluster_ids
             }
 
-        # 5. Successful Cache Hit
+        # 5. Successful Cache Hit (Update access telemetry)
         if self.use_dynamodb and best_candidate.get("entry_id"):
             try:
                 table = self.dynamodb.Table(config.TABLE_CACHE)
@@ -311,17 +375,48 @@ class SemanticCacheEngine:
         """
         Inserts a verified low-risk normal entry into DynamoDB cache.
         Enforces maximum capacity of 50 entries with LRU eviction (prioritizing never-accessed items).
+        Prevents duplicates by checking normalized text and high cosine similarity (>= 0.92).
         Never caches emergency advice or personalized prescription decisions.
         """
         if not self.use_dynamodb:
             return False
 
+        import re
         try:
             table = self.dynamodb.Table(config.TABLE_CACHE)
-            resp = table.scan(ProjectionExpression="entry_id, access_count, last_accessed_at, created_at")
+            resp = table.scan(
+                ProjectionExpression="entry_id, approved_question, embedding, access_count, last_accessed_at, created_at"
+            )
             items = resp.get("Items", [])
 
-            # Enforce capacity limit of 50
+            norm_new = re.sub(r"[^a-z0-9\s]", "", question.lower()).strip()
+            new_emb_arr = np.array(embedding, dtype=np.float32)
+
+            # Deduplication check: Do not insert if exact normalized match or >= 0.92 similarity already exists
+            for it in items:
+                norm_existing = re.sub(r"[^a-z0-9\s]", "", it.get("approved_question", "").lower()).strip()
+                is_text_match = (norm_new and norm_new == norm_existing)
+                
+                is_semantic_match = False
+                if not is_text_match and it.get("embedding"):
+                    try:
+                        exist_vec = np.array([float(x) for x in it["embedding"]], dtype=np.float32)
+                        if len(exist_vec) == len(new_emb_arr) and np.dot(new_emb_arr, exist_vec) >= 0.92:
+                            is_semantic_match = True
+                    except Exception:
+                        pass
+
+                if is_text_match or is_semantic_match:
+                    logger.info(f"Deduplication: Entry already exists (entry_id={it.get('entry_id')}). Updating access timestamp instead of duplicating.")
+                    now_ts = int(time.time())
+                    table.update_item(
+                        Key={"entry_id": it["entry_id"]},
+                        UpdateExpression="ADD access_count :inc SET last_accessed_at = :ts",
+                        ExpressionAttributeValues={":inc": Decimal("1"), ":ts": Decimal(str(now_ts))}
+                    )
+                    return True
+
+            # Enforce capacity limit of 50: LRU eviction
             if len(items) >= 50:
                 def sort_key(it):
                     cnt = int(it.get("access_count", 0))
@@ -337,12 +432,11 @@ class SemanticCacheEngine:
             if cluster_id == "cluster_general" or not cluster_id:
                 clusters = self.fetch_centroids()
                 if clusters:
-                    emb_arr = np.array(embedding, dtype=np.float32)
                     best_sim = -1.0
                     best_cid = clusters[0]["cluster_id"]
                     for c in clusters:
                         c_vec = np.array(c["centroid_vector"], dtype=np.float32)
-                        s = float(np.dot(emb_arr, c_vec))
+                        s = float(np.dot(new_emb_arr, c_vec))
                         if s > best_sim:
                             best_sim = s
                             best_cid = c["cluster_id"]
@@ -366,6 +460,7 @@ class SemanticCacheEngine:
             }
             table.put_item(Item=new_item)
             logger.info("Inserted new eligible low-risk entry into semantic cache.")
+            return True
             return True
         except Exception as e:
             logger.warning(f"Error inserting cache entry: {e}")

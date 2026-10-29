@@ -190,93 +190,95 @@ export default function App() {
 
   return (
     <div className="clinical-dashboard-layout dark-theme">
-      {/* 1. Left Fixed Glass Sidebar */}
-      <Sidebar
-        activeView={activeView}
-        setActiveView={setActiveView}
-        connectionStatus={connectionStatus}
-      />
-
-      {/* 2. Main Content View Area */}
-      <div className="dashboard-main-viewport">
-        {/* Top Glass Header */}
-        <Header
+      <div className="clinical-floating-window">
+        {/* 1. Left Fixed Glass Sidebar */}
+        <Sidebar
           activeView={activeView}
           setActiveView={setActiveView}
           connectionStatus={connectionStatus}
-          emergencyNumber={emergencyNumber}
         />
 
-        {/* Dynamic View Rendering */}
-        <main className="dashboard-view-body">
-          {activeView === 'dashboard' && (
-            <DashboardView
-              query={query}
-              setQuery={setQuery}
-              loading={loading}
-              onSubmit={handleQuerySubmit}
-              response={response}
-              clientRtt={clientRtt}
-              serviceError={serviceError}
-              clientDigest={clientDigest}
-              emergencyNumber={emergencyNumber}
-              onSelectQuery={handleSelectQueryFromTable}
-              recentEvaluations={recentEvaluations}
-              setActiveView={setActiveView}
-              onConnectProfessional={handleConnectProfessional}
-            />
-          )}
+        {/* 2. Main Content View Area */}
+        <div className="dashboard-main-viewport">
+          {/* Top Glass Header */}
+          <Header
+            activeView={activeView}
+            setActiveView={setActiveView}
+            connectionStatus={connectionStatus}
+            emergencyNumber={emergencyNumber}
+          />
 
-          {activeView === 'query' && (
-            <ClinicalQueryView
-              query={query}
-              setQuery={setQuery}
-              loading={loading}
-              onSubmit={handleQuerySubmit}
-              response={response}
-              clientRtt={clientRtt}
-              serviceError={serviceError}
-              clientDigest={clientDigest}
-              emergencyNumber={emergencyNumber}
-              onConnectProfessional={handleConnectProfessional}
-            />
-          )}
+          {/* Dynamic View Rendering */}
+          <main className="dashboard-view-body">
+            {activeView === 'dashboard' && (
+              <DashboardView
+                query={query}
+                setQuery={setQuery}
+                loading={loading}
+                onSubmit={handleQuerySubmit}
+                response={response}
+                clientRtt={clientRtt}
+                serviceError={serviceError}
+                clientDigest={clientDigest}
+                emergencyNumber={emergencyNumber}
+                onSelectQuery={handleSelectQueryFromTable}
+                recentEvaluations={recentEvaluations}
+                setActiveView={setActiveView}
+                onConnectProfessional={handleConnectProfessional}
+              />
+            )}
 
-          {activeView === 'safety' && (
-            <SafetyMonitorView emergencyNumber={emergencyNumber} />
-          )}
+            {activeView === 'query' && (
+              <ClinicalQueryView
+                query={query}
+                setQuery={setQuery}
+                loading={loading}
+                onSubmit={handleQuerySubmit}
+                response={response}
+                clientRtt={clientRtt}
+                serviceError={serviceError}
+                clientDigest={clientDigest}
+                emergencyNumber={emergencyNumber}
+                onConnectProfessional={handleConnectProfessional}
+              />
+            )}
 
-          {activeView === 'cache' && <CachePerformanceView />}
+            {activeView === 'safety' && (
+              <SafetyMonitorView emergencyNumber={emergencyNumber} />
+            )}
 
-          {activeView === 'logs' && (
-            <EvaluationLogsView recentEvaluations={recentEvaluations} />
-          )}
+            {activeView === 'cache' && <CachePerformanceView />}
 
-          {activeView === 'benchmark' && <BenchmarkView />}
+            {activeView === 'logs' && (
+              <EvaluationLogsView recentEvaluations={recentEvaluations} />
+            )}
 
-          {activeView === 'architecture' && <ArchitectureView />}
+            {activeView === 'benchmark' && <BenchmarkView />}
 
-          {activeView === 'settings' && (
-            <SettingsView
-              apiEndpoint={apiEndpoint}
-              setApiEndpoint={setApiEndpoint}
-              emergencyNumber={emergencyNumber}
-              setEmergencyNumber={setEmergencyNumber}
-              connectionStatus={connectionStatus}
-            />
-          )}
-        </main>
+            {activeView === 'architecture' && <ArchitectureView />}
 
-        {/* Global Clean Glass Footer */}
-        <footer className="dashboard-bottom-footer">
-          <div className="footer-left">
-            <Cloud size={14} className="footer-cloud-icon" />
-            <span>GenSync-MedAI &bull; Serverless Safety-Aware Semantic Cache &bull; AWS Free Tier</span>
-          </div>
-          <div className="footer-right">
-            <span>Deterministic Triage &bull; Sub-220ms Cache &bull; Zero Dedicated Vector DB</span>
-          </div>
-        </footer>
+            {activeView === 'settings' && (
+              <SettingsView
+                apiEndpoint={apiEndpoint}
+                setApiEndpoint={setApiEndpoint}
+                emergencyNumber={emergencyNumber}
+                setEmergencyNumber={setEmergencyNumber}
+                connectionStatus={connectionStatus}
+              />
+            )}
+          </main>
+
+          {/* Global Clean Glass Footer */}
+          <footer className="dashboard-bottom-footer">
+            <div className="footer-left">
+              <Cloud size={14} className="footer-cloud-icon" />
+              <span>GenSync-MedAI &bull; Serverless Safety-Aware Semantic Cache &bull; AWS Free Tier</span>
+            </div>
+            <div className="footer-right">
+              <span>Deterministic Triage &bull; Sub-220ms Cache &bull; Zero Dedicated Vector DB</span>
+            </div>
+          </footer>
+        </div>
       </div>
     </div>
   );
