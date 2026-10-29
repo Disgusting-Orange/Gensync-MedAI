@@ -14,8 +14,8 @@ import SidebarGraphic from './SidebarGraphic';
 export const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: Home },
   { id: 'query', label: 'Clinical Query', icon: Search },
-  { id: 'safety', label: 'Safety Monitor', icon: Shield },
-  { id: 'cache', label: 'Cache Performance', icon: Layers },
+  { id: 'safety', label: 'Safety Gate', icon: Shield },
+  { id: 'cache', label: 'Cache Telemetry', icon: Layers },
   { id: 'logs', label: 'System Logs', icon: FileText },
   { id: 'benchmark', label: 'Benchmark', icon: BarChart3 },
   { id: 'architecture', label: 'Architecture', icon: GitFork },

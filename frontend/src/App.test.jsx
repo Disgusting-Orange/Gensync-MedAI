@@ -43,13 +43,13 @@ describe('GenSync-MedAI Multi-View Clinical Dashboard Suite', () => {
 
     render(<App />);
 
-    // Click Safety Monitor
-    const safetyBtn = screen.getByRole('button', { name: /Safety Monitor/i });
+    // Click Safety Gate
+    const safetyBtn = screen.getByRole('button', { name: /Safety Gate/i });
     fireEvent.click(safetyBtn);
     expect(screen.getByText('Deterministic Safety Monitor')).toBeDefined();
 
-    // Click Cache Performance
-    const cacheBtn = screen.getByRole('button', { name: /Cache Performance/i });
+    // Click Cache Telemetry
+    const cacheBtn = screen.getByRole('button', { name: /Cache Telemetry/i });
     fireEvent.click(cacheBtn);
     expect(screen.getByText('Two-Stage DynamoDB Cache Performance')).toBeDefined();
 
