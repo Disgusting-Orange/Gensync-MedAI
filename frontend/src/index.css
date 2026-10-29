@@ -1,10 +1,18 @@
 /* ==========================================================================
-   GenSync-MedAI: Root Global Reset & Deep Background
+   GenSync-MedAI: Root Global Reset & Deep Dark Glassmorphism Background
+   Pixel-perfect match to reference screenshot: media_1793304538599_2ca60ade.png
    ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Brand colors */
+  --cyan:   #00dcff;
+  --purple: #7c3aed;
+  --navy:   #060d1a;
 }
 
 *, *::before, *::after {
@@ -13,47 +21,106 @@
   padding: 0;
 }
 
-html {
+html, body {
+  width: 100%;
   height: 100%;
 }
 
 body {
-  min-height: 100%;
-  width: 100%;
-  /* ================================================================
-     EXACT BACKGROUND FROM SCREENSHOT:
-     Deep navy base (#060d1a) with STRONG teal glow on left,
-     purple on right, and subtle teal bottom — these are BRIGHT,
-     highly saturated glows visible clearly behind the glass window
-     ================================================================ */
+  /* ─── EXACT BACKGROUND FROM SCREENSHOT ───
+     Deep navy base with vivid teal wave-mesh glow on left,
+     purple atmospheric glow on right. These must be VERY visible
+     behind/around the floating glass window.
+  ─────────────────────────────────────────── */
   background-color: #060d1a;
   background-image:
-    /* Strong teal/cyan wave glow — LEFT side, large */
-    radial-gradient(ellipse 65% 90% at -5% 55%, rgba(0, 220, 255, 0.55) 0%, rgba(0, 180, 230, 0.25) 40%, transparent 70%),
-    /* Medium teal glow — bottom left */
-    radial-gradient(ellipse 45% 50% at 5% 85%, rgba(0, 240, 200, 0.35) 0%, transparent 60%),
-    /* Purple/indigo glow — RIGHT side */
-    radial-gradient(ellipse 50% 70% at 105% 40%, rgba(120, 60, 220, 0.45) 0%, rgba(90, 40, 180, 0.2) 50%, transparent 70%),
-    /* Deep blue glow — top center */
-    radial-gradient(ellipse 60% 40% at 50% -10%, rgba(30, 60, 160, 0.4) 0%, transparent 60%),
-    /* Base gradient */
-    linear-gradient(160deg, #060d1a 0%, #040810 100%);
+    /* PRIMARY: Strong saturated teal/cyan wave-ellipse — LEFT (the dominant glow) */
+    radial-gradient(ellipse 70% 100% at -8% 60%, rgba(0, 220, 255, 0.60) 0%, rgba(0, 180, 240, 0.30) 38%, rgba(0, 100, 180, 0.08) 65%, transparent 80%),
+    /* SECONDARY: Teal spread — bottom-left corner */
+    radial-gradient(ellipse 50% 60% at 3% 90%, rgba(0, 240, 200, 0.40) 0%, rgba(0, 180, 200, 0.10) 50%, transparent 70%),
+    /* ACCENT: Soft blue-teal centre-left */
+    radial-gradient(ellipse 40% 50% at 20% 30%, rgba(0, 180, 220, 0.12) 0%, transparent 60%),
+    /* PURPLE: Right-side atmospheric glow */
+    radial-gradient(ellipse 55% 75% at 108% 45%, rgba(120, 50, 230, 0.50) 0%, rgba(90, 30, 180, 0.22) 45%, transparent 70%),
+    /* PURPLE accent — top-right */
+    radial-gradient(ellipse 35% 40% at 90% 5%, rgba(140, 60, 220, 0.25) 0%, transparent 60%),
+    /* Deep navy base gradient */
+    linear-gradient(165deg, #07101f 0%, #040810 100%);
+
+  /* Fixed so it doesn't scroll with content */
   background-attachment: fixed;
+  background-size: cover;
+
   color: #f0f4f8;
   font-family: var(--font-sans);
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* Critical: allow background to show around the glass window */
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+/* Wave mesh particle overlay — SVG filter noise for the wave texture visible in screenshot */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    /* Diagonal mesh lines that create the wave pattern */
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 60px,
+      rgba(0, 200, 255, 0.018) 60px,
+      rgba(0, 200, 255, 0.018) 61px
+    ),
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 60px,
+      rgba(0, 180, 220, 0.015) 60px,
+      rgba(0, 180, 220, 0.015) 61px
+    );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Animated teal wave shimmer on the left */
+body::after {
+  content: '';
+  position: fixed;
+  left: -200px;
+  top: -100px;
+  width: 700px;
+  height: 900px;
+  background: radial-gradient(ellipse 70% 80% at 30% 50%, rgba(0, 210, 255, 0.18) 0%, transparent 70%);
+  animation: waveShimmer 8s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes waveShimmer {
+  0%   { transform: translateY(0px) scale(1);    opacity: 0.7; }
+  50%  { transform: translateY(-30px) scale(1.05); opacity: 1; }
+  100% { transform: translateY(15px) scale(0.97); opacity: 0.75; }
 }
 
 #root {
+  position: relative;
+  z-index: 1;
   width: 100%;
   height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Padding ensures the glass window has visible background AROUND it */
+  padding: 24px 32px;
 }
 
 button {
@@ -92,7 +159,7 @@ a {
 
 @keyframes spin {
   from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  to   { transform: rotate(360deg); }
 }
 
 .pulsing {
@@ -101,10 +168,10 @@ a {
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  50%       { opacity: 0.5; }
 }
 
 @keyframes statusPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
-  50% { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0); }
+  0%, 100% { box-shadow: 0 0 0 0   rgba(16, 185, 129, 0.6); }
+  50%      { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0); }
 }

@@ -28,67 +28,52 @@ import benchmarkData from '../data/benchmark_results.json';
 const DASHBOARD_PRESETS = [
   {
     id: 'syrup',
-    label: '🍼 Pediatric Syrup',
+    label: 'Pediatric Syrup',
     title: 'Pediatric Syrup Dosage',
     queryText: 'what is the dosage for p500 syrup',
     theme: 'amber',
   },
   {
     id: 'emergency',
-    label: '🚨 Emergency Triage',
+    label: 'Emergency Triage',
     title: 'Crushing Chest Pain',
     queryText: 'I have sudden severe crushing chest pain radiating into my left arm with cold sweats',
     theme: 'red',
   },
   {
     id: 'hit',
-    label: '⚡ Verified Cache Hit',
+    label: 'Verified Cache Hit',
     title: 'Adult Resting BP',
     queryText: 'what is normal resting blood pressure for adults',
     theme: 'green',
   },
-  {
-    id: 'wound',
-    label: '🩹 Wound Care',
-    title: 'Infected Wound Cleaning',
-    queryText: 'i have an infected wound how to clean it',
-    theme: 'cyan',
-  },
-  {
-    id: 'screentime',
-    label: '💻 25yo Screen Time',
-    title: '25-Year-Old Screen Time',
-    queryText: 'what is the recommended screen time for a 25 year old',
-    theme: 'purple',
-  },
 ];
 
-// Default verified preview matching media_1793303129382_bda36794.jpg
+// Default verified preview matching media_1793304538599_2ca60ade.png
 const DEFAULT_PREVIEW_RESPONSE = {
   routing_decision: 'SAFE_CACHE_CANDIDATE',
   cache_hit: true,
   similarity_score: 0.942,
   threshold_used: 0.92,
-  match_reasoning: 'Exact semantic concordance (0.942) and clinical entity validation against evidence-based clinical guidelines.',
-  matched_question: 'How much water should an average healthy adult drink daily?',
+  match_reasoning: 'Exact semantic concordance (0.942) and clinical entity validation against evidence-based AHA/ACC guidelines.',
+  matched_question: 'What is normal resting blood pressure for adults?',
   answer:
-    'According to the National Academies and Mayo Clinic, adequate daily fluid intake is approximately 3.7 liters (15.5 cups) for adult men and 2.7 liters (11.5 cups) for adult women, accounting for all beverages and moisture-rich foods.',
+    'Adult blood pressure ranges is 120/80 mmHg, and is evaluated as resting blood pressure of adult patients to monitor cardiovascular conditions.',
   key_points: [
-    '3.7 liters daily for men and 2.7 liters daily for women represent evidence-based baseline fluid intake.',
-    'Plain water, clear broths, herbal teas, and water-dense produce all contribute to daily hydration goals.',
-    'Thirst, dry mucous membranes, dark amber urine, and mild lightheadedness are primary early markers of dehydration.',
-    'Strenuous physical activity, hot or humid climates, fever, and gastrointestinal illness require increased fluids.',
+    'Adult blood pressure range 120/80 mmHg.',
+    'Tightness over blood pressure readings indicates cardiovascular response.',
+    'Accurate blood pressure adult evaluation requires resting baseline.',
   ],
   clinical_guidance:
-    'Consume fluids consistently throughout the day rather than drinking large volumes infrequently. Increase intake proactively prior to and during aerobic exercise.',
+    'Maintain healthy lifestyle habits, regular blood pressure checkups, and routine clinic visits to monitor cardiovascular wellness.',
   warning_signs:
-    'Severe postural dizziness, confusion, heart palpitations, inability to retain oral liquids, or absence of urination over 8 hours require immediate clinical attention.',
-  safety_category: 'Hydration & Metabolic Wellness',
+    'Seek immediate medical care at a hospital for severe acute chest symptoms and emergency actions.',
+  safety_category: 'Cardiovascular & Vital Signs',
   reviewed_by: 'Mayo Clinic Health Information Board',
   reviewed_at: '2026-09-15T10:00:00Z',
-  source_url: 'https://www.mayoclinic.org/healthy-lifestyle/nutrition-and-healthy-eating/in-depth/water/art-20044256',
+  source_url: 'https://www.mayoclinic.org/diseases-conditions/high-blood-pressure',
   cache_occupancy: {
-    current_entries: 26,
+    current_entries: 20,
     max_capacity: 50,
   },
   latency: {
@@ -174,7 +159,7 @@ export default function DashboardView({
               type="text"
               id="clinical-query-input"
               className="search-capsule-input query-text-input"
-              placeholder="e.g., What are the warning signs of pediatric dehydration?"
+              placeholder="What is normal resting blood pressure for adults?"
               value={query}
               onChange={(e) => {
                 setQuery(e.target.value);
@@ -463,9 +448,9 @@ export default function DashboardView({
 
                     {/* Quadrant 4: When to Seek Immediate Care */}
                     <div className="quadrant-card quadrant-warning-pill-card">
-                      <div className="quadrant-pill-header amber-header">
-                        <AlertTriangle size={15} />
+                      <div className="quadrant-pill-header amber-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span>When to Seek Immediate Care</span>
+                        <AlertTriangle size={15} />
                       </div>
                       <p className="quadrant-pill-body">
                         {displayResponse.warning_signs ||

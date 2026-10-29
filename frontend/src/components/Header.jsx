@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronDown, ShieldCheck, Cloud } from 'lucide-react';
+import { ChevronDown, Box, ShieldCheck, Cloud } from 'lucide-react';
 
 const VIEW_TITLES = {
   dashboard: 'GenSync-MedAI Semantic Retrieval',
@@ -29,9 +29,9 @@ export default function Header({ activeView, connectionStatus }) {
       <div className="header-left-group">
         {/* AWS Region Pill — matches screenshot */}
         <div className="header-pill region-pill">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-            <rect x="2" y="6" width="20" height="12" rx="2" fill="#FF9900" opacity="0.9"/>
-            <text x="12" y="14.5" textAnchor="middle" fill="#111" fontSize="7" fontWeight="bold" fontFamily="monospace">aws</text>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+            <rect x="2" y="6" width="20" height="12" rx="3" fill="#FF9900" opacity="0.95"/>
+            <text x="12" y="14.5" textAnchor="middle" fill="#0c101c" fontSize="7.5" fontWeight="900" fontFamily="sans-serif">aws</text>
           </svg>
           <span className="pill-text">AWS ap-south-1</span>
         </div>
@@ -56,9 +56,9 @@ export default function Header({ activeView, connectionStatus }) {
           </span>
         </div>
 
-        {/* Zero-Vector-DB Invariant pill */}
+        {/* Zero-Vector-DB Invariant pill with cube icon matching screenshot */}
         <div className="header-pill free-tier-pill">
-          <ShieldCheck size={13} />
+          <Box size={13} className="cube-icon" />
           <span className="pill-text">Zero-Vector-DB Invariant</span>
         </div>
       </div>

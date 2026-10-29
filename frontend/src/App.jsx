@@ -4,6 +4,7 @@ import { Cloud } from 'lucide-react';
 
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
+import BackgroundWaveMesh from './components/BackgroundWaveMesh';
 import DashboardView from './components/DashboardView';
 import ClinicalQueryView from './components/ClinicalQueryView';
 import SafetyMonitorView from './components/SafetyMonitorView';
@@ -190,6 +191,9 @@ export default function App() {
 
   return (
     <div className="clinical-dashboard-layout dark-theme">
+      {/* 3D Luminous Wave Mesh Background (exact match to media_1793304538599_2ca60ade.png) */}
+      <BackgroundWaveMesh />
+
       <div className="clinical-floating-window">
         {/* 1. Left Fixed Glass Sidebar */}
         <Sidebar
