@@ -2248,11 +2248,13 @@
 
 /* Glass Panel Enhancements */
 .query-console-card,
+.home-query-card,
 .result-alert-box,
 .telemetry-drawer-card,
 .home-hero-card,
 .kpi-stat-card,
 .preset-eval-card,
+.preset-card,
 .eval-result-card,
 .activity-table-card,
 .throughput-chart-card,
@@ -2269,9 +2271,25 @@
 }
 
 .query-console-card:hover,
+.home-query-card:hover,
 .kpi-stat-card:hover,
-.preset-eval-card:hover {
+.preset-eval-card:hover,
+.preset-card:hover {
   border-color: rgba(56, 189, 248, 0.25) !important;
+}
+
+.preset-card {
+  background: rgba(18, 28, 52, 0.7) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #f8fafc !important;
+}
+
+.preset-card-title {
+  color: #f8fafc !important;
+}
+
+.preset-card-sub {
+  color: #94a3b8 !important;
 }
 
 /* Header Glass Pills */
