@@ -80,6 +80,15 @@ def lambda_handler(event: Dict[str, Any], context: Any = None) -> Dict[str, Any]
 
     query = body.get("query", "").strip()
 
+    # Health check / ping probe (fast path without embedding or DB calls)
+    if http_method == "GET" or body.get("ping") or query.lower() in ("ping", "health", "healthcheck"):
+        return build_response(200, {
+            "status": "healthy",
+            "service": "gensync-cache",
+            "region": config.AWS_REGION,
+            "correlation_id": correlation_id,
+        })
+
     # Step 1: Deterministic Safety Layer (Safety Before Retrieval)
     triage_result: TriageResult = triage_engine.evaluate(query)
     query_sha256 = compute_query_hash(query) if query else "empty_query"

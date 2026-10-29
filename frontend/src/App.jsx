@@ -52,12 +52,13 @@ export default function App() {
     const probeGateway = async () => {
       try {
         const res = await fetch(apiEndpoint, {
-          method: 'OPTIONS',
+          method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          signal: AbortSignal.timeout(4000),
+          body: JSON.stringify({ ping: true }),
+          signal: AbortSignal.timeout(6000),
         });
         if (isMounted) {
-          setConnectionStatus(res.ok ? 'online' : 'offline');
+          setConnectionStatus(res.ok || res.status < 500 ? 'online' : 'offline');
         }
       } catch {
         if (isMounted) {
