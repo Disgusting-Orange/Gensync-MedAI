@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
+import { Cloud } from 'lucide-react';
 
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
@@ -169,8 +170,18 @@ export default function App() {
         <main className="dashboard-view-body">
           {activeView === 'dashboard' && (
             <DashboardView
+              query={query}
+              setQuery={setQuery}
+              loading={loading}
+              onSubmit={handleQuerySubmit}
+              response={response}
+              clientRtt={clientRtt}
+              serviceError={serviceError}
+              clientDigest={clientDigest}
+              emergencyNumber={emergencyNumber}
               onSelectQuery={handleSelectQueryFromTable}
               recentEvaluations={recentEvaluations}
+              setActiveView={setActiveView}
             />
           )}
 
@@ -212,6 +223,17 @@ export default function App() {
             />
           )}
         </main>
+
+        {/* Global Clean Clinical Footer */}
+        <footer className="dashboard-bottom-footer">
+          <div className="footer-left">
+            <Cloud size={14} className="footer-cloud-icon" />
+            <span>GenSync-MedAI v1.0.0 &bull; Deployed on AWS</span>
+          </div>
+          <div className="footer-right">
+            <span>Research &bull; Safety &bull; Better Healthcare</span>
+          </div>
+        </footer>
       </div>
     </div>
   );

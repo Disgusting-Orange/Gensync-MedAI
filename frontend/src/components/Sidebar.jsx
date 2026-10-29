@@ -1,25 +1,24 @@
 import React from 'react';
 import {
-  LayoutDashboard,
-  MessageSquarePlus,
-  ShieldAlert,
-  Zap,
+  Home,
+  Search,
+  Shield,
+  Layers,
   FileText,
   BarChart3,
-  Cpu,
+  GitFork,
   Settings,
-  ShieldCheck,
-  Radio,
 } from 'lucide-react';
+import SidebarGraphic from './SidebarGraphic';
 
 export const NAV_ITEMS = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'query', label: 'Clinical Query', icon: MessageSquarePlus },
-  { id: 'safety', label: 'Safety Monitor', icon: ShieldAlert },
-  { id: 'cache', label: 'Cache Performance', icon: Zap },
+  { id: 'dashboard', label: 'Home', icon: Home },
+  { id: 'query', label: 'Clinical Query', icon: Search },
+  { id: 'safety', label: 'Safety Monitor', icon: Shield },
+  { id: 'cache', label: 'Cache Performance', icon: Layers },
   { id: 'logs', label: 'Evaluation & Logs', icon: FileText },
   { id: 'benchmark', label: 'Benchmark Results', icon: BarChart3 },
-  { id: 'architecture', label: 'Architecture', icon: Cpu },
+  { id: 'architecture', label: 'Architecture', icon: GitFork },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
@@ -28,18 +27,29 @@ export default function Sidebar({ activeView, setActiveView, connectionStatus })
     <aside className="dashboard-sidebar" aria-label="Main Navigation">
       {/* Brand Identity */}
       <div className="sidebar-brand">
-        <div className="brand-logo-hex" aria-hidden="true">
-          <ShieldCheck className="brand-icon" size={20} />
+        <div className="brand-logo-mark" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
+            <defs>
+              <linearGradient id="brandStarGrad" x1="0" y1="0" x2="28" y2="28">
+                <stop offset="0%" stopColor="#38bdf8" />
+                <stop offset="50%" stopColor="#3b82f6" />
+                <stop offset="100%" stopColor="#8b5cf6" />
+              </linearGradient>
+            </defs>
+            <path
+              d="M 14 0 C 14 7, 21 14, 28 14 C 21 14, 14 21, 14 28 C 14 21, 7 14, 0 14 C 7 14, 14 7, 14 0 Z"
+              fill="url(#brandStarGrad)"
+            />
+          </svg>
         </div>
         <div className="brand-meta">
           <span className="brand-name">GENSYNC-MEDAI</span>
-          <span className="brand-sub">Clinical Safety Console</span>
+          <span className="brand-sub">Safety-aware semantic caching for clinical Q&A</span>
         </div>
       </div>
 
       {/* Navigation Links */}
       <nav className="sidebar-nav">
-        <div className="nav-group-label">OPERATIONS & TELEMETRY</div>
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive = activeView === item.id;
@@ -51,31 +61,16 @@ export default function Sidebar({ activeView, setActiveView, connectionStatus })
               onClick={() => setActiveView(item.id)}
               aria-current={isActive ? 'page' : undefined}
             >
-              <Icon size={17} className="nav-icon" />
+              <Icon size={18} className="nav-icon" />
               <span className="nav-label">{item.label}</span>
-              {isActive && <span className="active-indicator" />}
             </button>
           );
         })}
       </nav>
 
-      {/* System Status Footer */}
+      {/* Sidebar Footer with Wave Graphic & Tagline */}
       <div className="sidebar-footer">
-        <div className="backend-status-pill">
-          <span className={`status-pulse ${connectionStatus}`} />
-          <div className="status-text-block">
-            <span className="status-label">AWS AP-SOUTH-1</span>
-            <span className="status-state">
-              {connectionStatus === 'online' && 'System Active'}
-              {connectionStatus === 'checking' && 'Connecting...'}
-              {connectionStatus === 'offline' && 'Offline / Error'}
-            </span>
-          </div>
-          <Radio size={14} className="radio-icon" />
-        </div>
-        <div className="footer-disclaimer">
-          Research Prototype · Not a Diagnostic Device
-        </div>
+        <SidebarGraphic />
       </div>
     </aside>
   );

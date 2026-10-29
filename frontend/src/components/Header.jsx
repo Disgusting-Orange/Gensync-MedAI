@@ -1,79 +1,66 @@
 import React from 'react';
-import { ShieldCheck, PhoneCall, Activity, Server, Zap } from 'lucide-react';
+import { ChevronDown, Sun } from 'lucide-react';
 
 const VIEW_TITLES = {
-  dashboard: {
-    title: 'Clinical Safety Overview & Telemetry',
-    subtitle: 'Real-time telemetry, routing outcome distributions, and empirical performance trends.',
-  },
-  query: {
-    title: 'Interactive Clinical Query Console',
-    subtitle: 'Safety-aware evaluation across emergency, referral, and two-stage cached knowledge.',
-  },
-  safety: {
-    title: 'Deterministic Safety Monitor',
-    subtitle: 'Pre-retrieval emergency rules, clinical contraindication gates, and SNS escalation.',
-  },
-  cache: {
-    title: 'Two-Stage DynamoDB Cache Performance',
-    subtitle: 'Centroid screening, GSI candidate retrieval, and cosine similarity distributions.',
-  },
-  logs: {
-    title: 'Evaluation History & Audit Logs',
-    subtitle: 'Cryptographic SHA-256 query digests, routing decisions, and zero-PHI verification.',
-  },
-  benchmark: {
-    title: 'Adversarial Benchmark Analysis',
-    subtitle: '32-case stress test metrics, cold-start latency distributions, and safety verification.',
-  },
-  architecture: {
-    title: 'System Architecture & Security Invariants',
-    subtitle: 'Serverless topology, DynamoDB table models, and cost containment guardrails.',
-  },
-  settings: {
-    title: 'Console Settings & Parameters',
-    subtitle: 'API Gateway endpoint routing, cosine threshold calibration, and region controls.',
-  },
+  dashboard: 'Clinical Safety Overview & Telemetry',
+  query: 'Interactive Clinical Query Console',
+  safety: 'Deterministic Safety Monitor',
+  cache: 'Two-Stage DynamoDB Cache Performance',
+  logs: 'Evaluation History & Audit Logs',
+  benchmark: 'Adversarial Benchmark Analysis',
+  architecture: 'System Architecture & Security Invariants',
+  settings: 'Console Settings & Parameters',
 };
 
-export default function Header({ activeView, setActiveView, connectionStatus, emergencyNumber = '112' }) {
-  const current = VIEW_TITLES[activeView] || VIEW_TITLES.dashboard;
+export default function Header({ activeView, setActiveView, connectionStatus }) {
+  const currentDateStr = 'Wed, 29 Oct 2026 01:24 IST';
+  const currentTitle = VIEW_TITLES[activeView] || VIEW_TITLES.dashboard;
 
   return (
-    <header className="dashboard-top-header">
-      <div className="header-title-block">
-        <h2>{current.title}</h2>
-        <p>{current.subtitle}</p>
-      </div>
+    <header className="dashboard-top-header" role="banner">
+      {/* View Title */}
+      <h1 className="header-active-view-title">{currentTitle}</h1>
 
-      <div className="header-actions-block">
-        {/* Emergency Hotline Action Pill */}
-        <a
-          href={`tel:${emergencyNumber}`}
-          className="emergency-header-action"
-          title="Indian National Emergency Services"
-        >
-          <PhoneCall size={14} />
-          <span>EMERGENCY: {emergencyNumber}</span>
-        </a>
-
-        {/* Live Status Badge */}
-        <div className={`connection-badge ${connectionStatus}`}>
-          <span className="dot" />
-          <span>{connectionStatus === 'online' ? 'ap-south-1 Live' : connectionStatus === 'checking' ? 'Connecting...' : 'Disconnected'}</span>
+      {/* Left Header Controls: Region & Backend Status */}
+      <div className="header-left-group">
+        {/* Region Pill Selector */}
+        <div className="header-pill region-pill">
+          <span className="status-dot green" />
+          <span className="pill-text">AWS ap-south-1</span>
+          <ChevronDown size={14} className="chevron-icon" />
         </div>
 
-        {/* Jump to Query Button */}
-        {activeView !== 'query' && (
-          <button
-            type="button"
-            className="action-eval-btn"
-            onClick={() => setActiveView('query')}
-          >
-            <Zap size={14} />
-            <span>Test Query</span>
-          </button>
-        )}
+        {/* Backend Connectivity Status Pill */}
+        <div className={`header-pill connection-pill ${connectionStatus}`}>
+          <span className={`status-dot ${connectionStatus === 'online' ? 'green pulsing' : connectionStatus === 'checking' ? 'amber' : 'red'}`} />
+          <span className="pill-text">
+            {connectionStatus === 'online' ? 'Backend Connected' : connectionStatus === 'checking' ? 'Connecting...' : 'Disconnected'}
+          </span>
+        </div>
+      </div>
+
+      {/* Right Header Controls: Timestamp, Theme Toggle, Researcher Avatar */}
+      <div className="header-right-group">
+        <span className="header-timestamp">{currentDateStr}</span>
+
+        {/* Theme Toggle Button */}
+        <button
+          type="button"
+          className="header-icon-btn"
+          title="Toggle color theme"
+          aria-label="Toggle theme"
+        >
+          <Sun size={17} />
+        </button>
+
+        {/* Researcher User Profile Menu */}
+        <div className="header-user-profile">
+          <div className="user-avatar-circle" aria-hidden="true">
+            <span>K</span>
+          </div>
+          <span className="user-role-label">Researcher</span>
+          <ChevronDown size={14} className="chevron-icon" />
+        </div>
       </div>
     </header>
   );
