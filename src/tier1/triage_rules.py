@@ -102,13 +102,14 @@ EMERGENCY_PATTERNS = {
 REFERRAL_PATTERNS = {
     "pediatric_infant_care": [
         r"\b(my\s+baby|my\s+infant|my\s+newborn|my\s+toddler|my\s+child|my\s+kid)\b",
-        r"\b(\d+[\s-]*(month|week|day|year)[\s-]*old)\b",
+        r"\b(\d+[\s-]*(?:months?|weeks?|days?)[\s-]*old)\b",
+        r"\b(1[0-7]|[0-9])[\s-]*(?:years?|yrs?)[\s-]*old\b",
         r"\b(pediatric|paediatric|infant\s+dose|baby\s+fever|child\s+symptoms)\b",
         r"\b(p500|p250|p120|calpol|crocin|paracetamol|pcm|tylenol|ibuprofen)\s+(?:syrup|suspension|drops|liquid)\b",
         r"\b(?:syrup|suspension|drops|liquid)\s+(?:dosage|dose|for\s+kids|for\s+child|for\s+baby|for\s+infant)\b",
         r"\b(?:dosage|dose)\s+(?:for|of)\s+.*?(?:syrup|suspension|drops|p500|p250|p120|calpol|crocin)\b",
         r"\b(p500|p250|p120)\s+(?:dosage|dose|syrup|tablet)?\b",
-        r"\b(?:syrup|suspension|pediatric\s+drops)\b",
+        r"\b(?:pediatric\s+drops|infant\s+drops|pediatric\s+syrup|infant\s+syrup|pediatric\s+suspension)\b",
     ],
     "prescription_medications": [
         r"\b(metformin|amlodipine|lisinopril|atorvastatin|levothyroxine|omeprazole)\b",
