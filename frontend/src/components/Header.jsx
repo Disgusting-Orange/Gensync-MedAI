@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronDown, Sun, Moon } from 'lucide-react';
+import { ChevronDown, ShieldCheck, Activity } from 'lucide-react';
 
 const VIEW_TITLES = {
   dashboard: 'Clinical Safety Overview & Telemetry',
@@ -16,18 +16,18 @@ export default function Header({
   activeView,
   setActiveView,
   connectionStatus,
-  theme = 'light',
-  onToggleTheme,
 }) {
-  const currentDateStr = 'Wed, 29 Oct 2026 01:24 IST';
+  const currentDateStr = 'Wed, 29 Oct 2026 IST';
   const currentTitle = VIEW_TITLES[activeView] || VIEW_TITLES.dashboard;
 
   return (
     <header className="dashboard-top-header" role="banner">
       {/* View Title */}
-      <h1 className="header-active-view-title">{currentTitle}</h1>
+      <div className="header-title-block">
+        <h1 className="header-active-view-title">{currentTitle}</h1>
+      </div>
 
-      {/* Left Header Controls: Region & Backend Status */}
+      {/* Center/Left Header Controls: Region & Backend Status */}
       <div className="header-left-group">
         {/* Region Pill Selector */}
         <div className="header-pill region-pill">
@@ -49,35 +49,36 @@ export default function Header({
           />
           <span className="pill-text">
             {connectionStatus === 'online'
-              ? 'Backend Connected'
+              ? 'Backend Live'
               : connectionStatus === 'checking'
               ? 'Connecting...'
               : 'Disconnected'}
           </span>
         </div>
+
+        {/* Free Tier Compliance Badge */}
+        <div className="header-pill free-tier-pill">
+          <ShieldCheck size={13} className="text-emerald-400" />
+          <span className="pill-text">Free Tier Invariant</span>
+        </div>
       </div>
 
-      {/* Right Header Controls: Timestamp, Theme Toggle, Researcher Avatar */}
+      {/* Right Header Controls: Timestamp & Researcher Avatar */}
       <div className="header-right-group">
         <span className="header-timestamp">{currentDateStr}</span>
 
-        {/* Theme Toggle Button (Light / Dark Mode) */}
-        <button
-          type="button"
-          className="header-icon-btn theme-toggle-btn"
-          title={theme === 'dark' ? 'Switch to Light Clinical Theme' : 'Switch to Dark Obsidian Theme'}
-          aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-          onClick={onToggleTheme}
-        >
-          {theme === 'dark' ? <Sun size={17} className="theme-icon sun" /> : <Moon size={17} className="theme-icon moon" />}
-        </button>
+        {/* Live Triage Status */}
+        <div className="header-pill live-mode-pill">
+          <Activity size={13} className="text-cyan-400" />
+          <span className="pill-text">Zero-Vector-DB</span>
+        </div>
 
         {/* Researcher User Profile Menu */}
         <div className="header-user-profile">
           <div className="user-avatar-circle" aria-hidden="true">
             <span>K</span>
           </div>
-          <span className="user-role-label">Researcher</span>
+          <span className="user-role-label">Clinical Researcher</span>
           <ChevronDown size={14} className="chevron-icon" />
         </div>
       </div>

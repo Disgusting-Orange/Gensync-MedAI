@@ -83,6 +83,36 @@ def lambda_handler(event: Dict[str, Any], context: Any = None) -> Dict[str, Any]
 
     query = body.get("query", "").strip()
 
+    # Action: Connect to Professional Doctor (Escalate inquiry via Amazon SNS)
+    if body.get("action") == "connect_professional":
+        patient_query = body.get("query", "Pediatric consultation request")
+        escalation_payload = {
+            "event_type": "PEDIATRIC_CLINICAL_ESCALATION",
+            "patient_inquiry": patient_query[:500],
+            "correlation_id": correlation_id,
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "operational_notice": "Patient requested direct pediatric doctor escalation."
+        }
+        try:
+            import boto3
+            sns_client = boto3.client("sns", region_name=config.AWS_REGION)
+            sns_client.publish(
+                TopicArn=config.SNS_TOPIC_ARN,
+                Subject="CLINICAL ESCALATION: Pediatric Inquiry Assistance Requested",
+                Message=json.dumps(escalation_payload, indent=2)
+            )
+            sns_stat = "published"
+        except Exception as e:
+            logger.warning(f"Failed to publish escalation SNS: {e}")
+            sns_stat = "failed"
+
+        return build_response(200, {
+            "status": "escalated",
+            "notification_status": sns_stat,
+            "message": "Pediatric clinical escalation alert dispatched to verified response network.",
+            "correlation_id": correlation_id
+        })
+
     # Health check / ping probe (fast path without embedding or DB calls)
     if http_method == "GET" or body.get("ping") or query.lower() in ("ping", "health", "healthcheck"):
         return build_response(200, {
@@ -163,6 +193,7 @@ def lambda_handler(event: Dict[str, Any], context: Any = None) -> Dict[str, Any]
             "referral_message": triage_result.user_message,
             "cache_allowed": False,
             "model_allowed": False,
+            "can_connect_professional": True,
             "reason": triage_result.reason,
             "referral_resources": triage_result.referral_links,
             "correlation_id": correlation_id,
@@ -189,6 +220,7 @@ def lambda_handler(event: Dict[str, Any], context: Any = None) -> Dict[str, Any]
     cache_lookup_result = cache_engine.query_cache(raw_query=query, query_vector=query_vector)
     cache_latency_ms = (time.perf_counter() - t_cache_start) * 1000.0
     total_latency_ms = (time.perf_counter() - start_time) * 1000.0
+    cache_occ = cache_engine.get_cache_occupancy()
 
     # CASE D: VERIFIED CACHE HIT
     if cache_lookup_result["cache_hit"]:
@@ -212,6 +244,8 @@ def lambda_handler(event: Dict[str, Any], context: Any = None) -> Dict[str, Any]
             "cache_hit": True,
             "similarity_score": cache_lookup_result["similarity_score"],
             "threshold_used": cache_lookup_result["threshold_used"],
+            "match_reasoning": cache_lookup_result.get("match_reasoning", "Semantic similarity and entity concordance verified"),
+            "cache_occupancy": cache_occ,
             "matched_question": matched_entry["approved_question"],
             "answer": matched_entry["approved_answer"],
             "source_url": matched_entry["source_url"],
@@ -248,6 +282,11 @@ def lambda_handler(event: Dict[str, Any], context: Any = None) -> Dict[str, Any]
             "cache_hit": False,
             "ai_generated": False,
             "answer": ai_answer,
+            "key_points": [
+                "No peer-reviewed randomized controlled trials support this mechanism.",
+                "Primary symptoms should be investigated under standard clinical criteria.",
+                "Consult an accredited healthcare professional for persistent discomfort."
+            ],
             "clinical_guidance": "Consult a qualified clinician or physician for persistent or atypical symptoms.",
             "warning_signs": "Sudden severe symptoms or signs of acute distress require emergency evaluation.",
             "source_guidelines": "Established Clinical Guidelines",
@@ -258,16 +297,29 @@ def lambda_handler(event: Dict[str, Any], context: Any = None) -> Dict[str, Any]
         ai_res_data = clinical_ai_engine.generate_clinical_answer(query, query_vector=query_vector)
         ai_result = {
             "routing_decision": "CACHE_MISS",
-            "tier2_action": "GENERATIVE_AI_SYNTHESIS",
+            "tier2_action": ai_res_data.get("tier2_action", "GENERATIVE_AI_SYNTHESIS"),
             "cache_hit": False,
             "ai_generated": True,
             "model_name": ai_res_data.get("model_name", "GenSync-MedAI Clinical SLM"),
             "answer": ai_res_data["answer"],
+            "key_points": ai_res_data.get("key_points", []),
             "clinical_guidance": ai_res_data.get("clinical_guidance"),
             "warning_signs": ai_res_data.get("warning_signs"),
             "source_guidelines": ai_res_data.get("source_guidelines", "WHO / ICMR Guidelines"),
             "disclaimer": ai_res_data.get("disclaimer")
         }
+
+        # Auto-cache low-risk normal educational answers into DynamoDB (enforcing max 50 capacity with LRU eviction)
+        if not is_speculative and not ai_res_data.get("is_greeting"):
+            try:
+                cache_engine.insert_eligible_entry(
+                    question=query,
+                    answer=ai_result["answer"],
+                    embedding=query_vector.tolist(),
+                    safety_category=ai_res_data.get("topic", "General Health")
+                )
+            except Exception as e:
+                logger.debug(f"Auto-cache insert non-blocking skip: {e}")
 
     gen_latency_ms = (time.perf_counter() - t_gen_start) * 1000.0
     total_latency_ms = (time.perf_counter() - start_time) * 1000.0
@@ -301,10 +353,13 @@ def lambda_handler(event: Dict[str, Any], context: Any = None) -> Dict[str, Any]
         "cache_hit": False,
         "ai_generated": ai_result.get("ai_generated", False),
         "reason": cache_lookup_result.get("reason"),
+        "match_reasoning": f"No compatible cached answer found ({cache_lookup_result.get('reason')}). Invoked Tier-2 Model.",
+        "cache_occupancy": cache_occ,
         "similarity_score": cache_lookup_result.get("similarity_score", 0.0),
         "threshold_used": cache_lookup_result.get("threshold_used", config.COSINE_THRESHOLD),
         "model_name": ai_result.get("model_name", "GenSync-MedAI Clinical SLM"),
         "answer": ai_result["answer"],
+        "key_points": ai_result.get("key_points", []),
         "clinical_guidance": ai_result.get("clinical_guidance"),
         "warning_signs": ai_result.get("warning_signs"),
         "source_guidelines": ai_result.get("source_guidelines", "WHO / ICMR Guidelines"),

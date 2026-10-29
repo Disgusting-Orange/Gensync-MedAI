@@ -2239,3 +2239,325 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ==========================================================================
+   GenSync-MedAI: Glassmorphic Dark UI & Structured AI Chunking Extensions
+   Inspired by Deep Atmospheric Glass UI & High-Precision Clinical Displays
+   ========================================================================== */
+
+/* Glass Panel Enhancements */
+.query-console-card,
+.result-alert-box,
+.telemetry-drawer-card,
+.home-hero-card,
+.kpi-stat-card,
+.preset-eval-card,
+.eval-result-card,
+.activity-table-card,
+.throughput-chart-card,
+.safety-kpi-card,
+.cache-kpi-card,
+.stage-step-card,
+.arch-card,
+.settings-section-card {
+  background: rgba(16, 24, 43, 0.72) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
+}
+
+.query-console-card:hover,
+.kpi-stat-card:hover,
+.preset-eval-card:hover {
+  border-color: rgba(56, 189, 248, 0.25) !important;
+}
+
+/* Header Glass Pills */
+.header-pill {
+  background: rgba(22, 33, 58, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  backdrop-filter: blur(12px) !important;
+  color: #e2e8f0 !important;
+}
+
+.free-tier-pill {
+  color: #34d399 !important;
+  border-color: rgba(16, 185, 129, 0.25) !important;
+}
+
+.live-mode-pill {
+  color: #38bdf8 !important;
+  border-color: rgba(56, 189, 248, 0.25) !important;
+}
+
+/* Connect to Professional Doctor Section */
+.connect-professional-card {
+  margin-top: 14px;
+  padding: 14px 18px;
+  background: rgba(14, 165, 233, 0.08);
+  border: 1px solid rgba(14, 165, 233, 0.25);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.connect-pro-info .connect-pro-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #38bdf8;
+}
+
+.connect-pro-desc {
+  font-size: 12.5px;
+  color: #94a3b8;
+  margin-top: 4px;
+  line-height: 1.45;
+}
+
+.connect-pro-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+  cursor: pointer;
+  width: fit-content;
+}
+
+.connect-pro-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(14, 165, 233, 0.45);
+}
+
+.connect-pro-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.escalation-status-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.escalation-status-box.success {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #6ee7b7;
+}
+
+.escalation-status-box.error {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+}
+
+/* Psychological Scannable AI Response Styling */
+.ai-core-answer-box {
+  padding: 14px 18px;
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  margin-top: 12px;
+}
+
+.ai-core-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #38bdf8;
+  margin-bottom: 6px;
+}
+
+.ai-core-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #f1f5f9;
+  font-weight: 450;
+}
+
+.ai-key-points-section {
+  margin-top: 14px;
+  padding: 12px 16px;
+  background: rgba(22, 33, 58, 0.45);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.key-points-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #cbd5e1;
+  margin-bottom: 8px;
+}
+
+.key-points-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.key-point-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13.5px;
+  color: #e2e8f0;
+  line-height: 1.5;
+}
+
+.key-point-bullet {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+  margin-top: 7px;
+  flex-shrink: 0;
+}
+
+.ai-guidance-glass-card {
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: rgba(16, 185, 129, 0.09);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 10px;
+}
+
+.guidance-card-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: #34d399;
+  margin-bottom: 4px;
+}
+
+.guidance-card-body {
+  font-size: 13px;
+  color: #d1fae5;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.ai-warning-glass-card {
+  margin-top: 10px;
+  padding: 12px 16px;
+  background: rgba(245, 158, 11, 0.09);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 10px;
+}
+
+.warning-card-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: #fbbf24;
+  margin-bottom: 4px;
+}
+
+.warning-card-body {
+  font-size: 13px;
+  color: #fef3c7;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Cache Occupancy & Eviction Bar */
+.cache-occupancy-telemetry-row {
+  padding: 12px 16px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.occupancy-info-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.occupancy-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #cbd5e1;
+}
+
+.occupancy-count {
+  color: #38bdf8;
+  font-weight: 600;
+}
+
+.eviction-tag {
+  margin-left: auto;
+  font-size: 11px;
+  padding: 2px 8px;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border-radius: 6px;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+
+.occupancy-progress-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.occupancy-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.occupancy-note {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 6px;
+  font-style: italic;
+}
+
+.match-reasoning-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(6, 182, 212, 0.08);
+  border: 1px solid rgba(6, 182, 212, 0.2);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 12.5px;
+  color: #e0f2fe;
+  line-height: 1.45;
+}

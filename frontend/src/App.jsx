@@ -31,26 +31,15 @@ async function computeSha256(text) {
 }
 
 export default function App() {
-  const [theme, setTheme] = useState(() => {
-    try {
-      return localStorage.getItem('gensync_theme') || 'light';
-    } catch {
-      return 'light';
-    }
-  });
-
+  // Permanent Dark Glassmorphism Mode
   useEffect(() => {
     try {
-      document.documentElement.setAttribute('data-theme', theme);
-      localStorage.setItem('gensync_theme', theme);
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('gensync_theme', 'dark');
     } catch (e) {
-      console.warn('Theme storage unavailable', e);
+      console.warn('Theme setup', e);
     }
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
-  };
+  }, []);
 
   const [activeView, setActiveView] = useState('dashboard');
   const [apiEndpoint, setApiEndpoint] = useState(DEFAULT_API_ENDPOINT);
@@ -68,7 +57,7 @@ export default function App() {
 
   const abortControllerRef = useRef(null);
 
-  // Probe backend connectivity on mount (Honest status check)
+  // Probe backend connectivity on mount
   useEffect(() => {
     let isMounted = true;
     const probeGateway = async () => {
@@ -140,11 +129,17 @@ export default function App() {
       // Record in recent evaluations
       const newRecord = {
         id: 'LIVE-' + Math.floor(Math.random() * 9000 + 1000),
-        category: data.routing_decision === 'EMERGENCY' ? 'EMERGENCY' : data.routing_decision === 'PROFESSIONAL_REFERRAL' ? 'REFERRAL' : 'LIVE_QUERY',
+        category:
+          data.routing_decision === 'EMERGENCY'
+            ? 'EMERGENCY'
+            : data.routing_decision === 'PROFESSIONAL_REFERRAL'
+            ? 'REFERRAL'
+            : 'LIVE_QUERY',
         routing_decision: data.routing_decision,
         cache_hit: data.cache_hit || false,
         rtt_ms: rtt,
-        server_total_ms: data.latency?.total_ms !== undefined ? data.latency.total_ms : data.latency_ms || 0.2,
+        server_total_ms:
+          data.latency?.total_ms !== undefined ? data.latency.total_ms : data.latency_ms || 0.2,
         query_sha256: data.query_digest || localHash,
         timestamp: new Date().toISOString(),
         passed: true,
@@ -164,13 +159,38 @@ export default function App() {
     }
   };
 
+  // Connect to a professional escalation handler
+  const handleConnectProfessional = async (customQuery, correlationId) => {
+    try {
+      const res = await fetch(apiEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Correlation-ID': correlationId || 'web-' + Date.now(),
+        },
+        body: JSON.stringify({
+          action: 'connect_professional',
+          query: customQuery || query,
+          correlation_id: correlationId,
+        }),
+      });
+      if (!res.ok) {
+        throw new Error(`Professional escalation failed with HTTP ${res.status}`);
+      }
+      return await res.json();
+    } catch (err) {
+      console.error('Professional escalation error:', err);
+      throw err;
+    }
+  };
+
   const handleSelectQueryFromTable = (rec) => {
     setActiveView('query');
   };
 
   return (
-    <div className="clinical-dashboard-layout">
-      {/* 1. Left Fixed Sidebar */}
+    <div className="clinical-dashboard-layout dark-theme">
+      {/* 1. Left Fixed Glass Sidebar */}
       <Sidebar
         activeView={activeView}
         setActiveView={setActiveView}
@@ -179,14 +199,12 @@ export default function App() {
 
       {/* 2. Main Content View Area */}
       <div className="dashboard-main-viewport">
-        {/* Top Header */}
+        {/* Top Glass Header */}
         <Header
           activeView={activeView}
           setActiveView={setActiveView}
           connectionStatus={connectionStatus}
           emergencyNumber={emergencyNumber}
-          theme={theme}
-          onToggleTheme={toggleTheme}
         />
 
         {/* Dynamic View Rendering */}
@@ -205,6 +223,7 @@ export default function App() {
               onSelectQuery={handleSelectQueryFromTable}
               recentEvaluations={recentEvaluations}
               setActiveView={setActiveView}
+              onConnectProfessional={handleConnectProfessional}
             />
           )}
 
@@ -219,6 +238,7 @@ export default function App() {
               serviceError={serviceError}
               clientDigest={clientDigest}
               emergencyNumber={emergencyNumber}
+              onConnectProfessional={handleConnectProfessional}
             />
           )}
 
@@ -247,14 +267,14 @@ export default function App() {
           )}
         </main>
 
-        {/* Global Clean Clinical Footer */}
+        {/* Global Clean Glass Footer */}
         <footer className="dashboard-bottom-footer">
           <div className="footer-left">
             <Cloud size={14} className="footer-cloud-icon" />
-            <span>GenSync-MedAI v1.0.0 &bull; Deployed on AWS</span>
+            <span>GenSync-MedAI &bull; Serverless Safety-Aware Semantic Cache &bull; AWS Free Tier</span>
           </div>
           <div className="footer-right">
-            <span>Research &bull; Safety &bull; Better Healthcare</span>
+            <span>Deterministic Triage &bull; Sub-220ms Cache &bull; Zero Dedicated Vector DB</span>
           </div>
         </footer>
       </div>

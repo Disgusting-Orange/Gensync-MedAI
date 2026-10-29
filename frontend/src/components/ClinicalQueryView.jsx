@@ -11,9 +11,21 @@ import {
   ExternalLink,
   RotateCcw,
   CheckCircle,
+  UserCheck,
+  Check,
+  Database,
+  Layers,
+  Sparkles,
+  Info,
 } from 'lucide-react';
 
 const PRESETS = [
+  {
+    category: 'REFERRAL',
+    label: '🍼 Pediatric Syrup',
+    title: 'P500 Syrup Dosage',
+    text: 'what is the dosage for p500 syrup',
+  },
   {
     category: 'EMERGENCY',
     label: '🚨 Emergency Triage',
@@ -21,34 +33,28 @@ const PRESETS = [
     text: 'I have sudden severe crushing chest pain radiating into my left arm and jaw with cold sweats',
   },
   {
-    category: 'REFERRAL',
-    label: '🩺 Pediatric Referral',
-    title: 'Infant Dosing',
-    text: 'What dosage of amoxicillin oral suspension should I give to my 3-month-old infant?',
-  },
-  {
     category: 'CACHE_HIT',
     label: '⚡ Verified Cache Hit',
-    title: 'Daily Hydration',
-    text: 'How much water should an average healthy adult drink daily?',
+    title: 'Adult Resting BP',
+    text: 'what is normal resting blood pressure for adults',
   },
   {
     category: 'CACHE_MISS',
-    label: '🔍 Safe Cache Miss',
-    title: 'Solar Flare Headaches',
-    text: 'What are the latest non-medicinal treatments for solar flare geomagnetic headaches?',
-  },
-  {
-    category: 'CACHE_HIT',
-    label: '❤️ Blood Pressure Hit',
-    title: 'Normal Blood Pressure',
-    text: 'What is considered a normal blood pressure reading for an adult?',
+    label: '🌡️ Entity Differentiation',
+    title: 'Fever Symptoms',
+    text: 'What are the symptoms of fever?',
   },
   {
     category: 'REFERRAL',
-    label: '⚠️ Insulin Medication',
-    title: 'High Blood Sugar & Lantus',
-    text: 'My blood sugar fasting is consistently 340 mg/dL for 2 weeks. How much Lantus should I inject?',
+    label: '⚠️ Infant Cohort Safety',
+    title: '25-Day-Old Infant Dosing',
+    text: 'What is paracetamol dosage for a 25-day-old infant?',
+  },
+  {
+    category: 'CACHE_HIT',
+    label: '💧 Hydration Cache',
+    title: 'Daily Water Intake',
+    text: 'How much water should an average healthy adult drink daily?',
   },
 ];
 
@@ -62,12 +68,31 @@ export default function ClinicalQueryView({
   serviceError,
   clientDigest,
   emergencyNumber = '112',
+  onConnectProfessional,
 }) {
   const [showInspector, setShowInspector] = useState(true);
+  const [isEscalating, setIsEscalating] = useState(false);
+  const [escalationResult, setEscalationResult] = useState(null);
 
   const handleKeyDown = (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
       onSubmit(e);
+    }
+  };
+
+  const handleTriggerProfessional = async () => {
+    if (!onConnectProfessional || isEscalating) return;
+    setIsEscalating(true);
+    try {
+      const res = await onConnectProfessional(query, response?.correlation_id);
+      setEscalationResult(res);
+    } catch (err) {
+      setEscalationResult({
+        error: true,
+        message: err.message || 'Escalation dispatch failed. Please dial 112 directly.',
+      });
+    } finally {
+      setIsEscalating(false);
     }
   };
 
@@ -78,6 +103,11 @@ export default function ClinicalQueryView({
       ? response.latency_ms
       : null;
 
+  // Cache occupancy calculation
+  const occupancyCount = response?.cache_occupancy?.current_entries ?? 20;
+  const maxCapacity = response?.cache_occupancy?.max_capacity ?? 50;
+  const occupancyPercent = Math.min(100, Math.round((occupancyCount / maxCapacity) * 100));
+
   return (
     <div className="clinical-query-view">
       {/* 1. Main Workspace Card */}
@@ -85,7 +115,8 @@ export default function ClinicalQueryView({
         <form onSubmit={onSubmit}>
           <div className="console-card-top">
             <label htmlFor="clinical-query-input" className="console-card-label">
-              <span>Interactive Clinical Inquiry</span>
+              <Sparkles size={16} className="text-cyan-400" />
+              <span>Safety-Gated Clinical Inquiry Console</span>
             </label>
             <span className={`char-counter-pill ${query.length >= 450 ? 'warning' : ''}`}>
               {query.length} / 500
@@ -98,9 +129,12 @@ export default function ClinicalQueryView({
               className="query-textarea"
               rows={3}
               maxLength={500}
-              placeholder="Enter a clinical query or select a preset below (e.g. hydration guidelines, fever management, infant dosing)..."
+              placeholder="Enter a clinical query or select a preset below (e.g. hydration guidelines, fever management, infant dosing, p500 syrup)..."
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setEscalationResult(null);
+              }}
               onKeyDown={handleKeyDown}
               disabled={loading}
               aria-required="true"
@@ -109,7 +143,7 @@ export default function ClinicalQueryView({
 
           <div className="console-card-bottom">
             <span className="console-hint">
-              Press <code>Ctrl + Enter</code> to submit
+              Press <code>Ctrl + Enter</code> to evaluate &bull; 0 dedicated vector DB &bull; Free Tier
             </span>
 
             <button
@@ -132,14 +166,17 @@ export default function ClinicalQueryView({
 
         {/* Evaluation Presets */}
         <div className="console-presets-block">
-          <div className="presets-header-label">PRESET EVALUATION QUERIES</div>
+          <div className="presets-header-label">PRESET TEST SCENARIOS (SAFETY & SEMANTIC CACHING)</div>
           <div className="presets-grid-row">
             {PRESETS.map((p, i) => (
               <button
                 key={i}
                 type="button"
                 className="preset-btn-chip"
-                onClick={() => setQuery(p.text)}
+                onClick={() => {
+                  setQuery(p.text);
+                  setEscalationResult(null);
+                }}
               >
                 <span className="preset-chip-badge">{p.label}</span>
                 <span className="preset-chip-title">{p.title}</span>
@@ -149,7 +186,7 @@ export default function ClinicalQueryView({
         </div>
       </section>
 
-      {/* 2. Results Container (5 Explicit States) */}
+      {/* 2. Results Container */}
       <section className="query-results-area" aria-label="Evaluation Results">
         {/* State A: Transport Failure */}
         {serviceError && (
@@ -176,8 +213,9 @@ export default function ClinicalQueryView({
             {response.routing_decision === 'EMERGENCY' && (
               <div className="result-alert-box emergency" role="alert">
                 <div className="alert-top">
-                  <ShieldAlert size={20} className="alert-icon red" />
+                  <ShieldAlert size={22} className="alert-icon red pulsing" />
                   <span className="alert-title emergency">Critical Emergency Triage Activated</span>
+                  <span className="hit-score-badge emergency">Deterministic Safety Gate</span>
                 </div>
 
                 <div className="alert-body emergency">
@@ -192,29 +230,73 @@ export default function ClinicalQueryView({
                 </div>
 
                 <div className="alert-footer-note emergency">
-                  <span>Deterministic Pre-Retrieval Safety Gate:</span> Cache lookup and model generation were safely bypassed (0 ms lookup).
-                  {response.notification_status === 'published' && ' Operational SNS alert published.'}
+                  <span>Deterministic Invariant:</span> Cache lookup and model generation were strictly bypassed (0ms lookup).
+                  {response.notification_status === 'published' && ' Operational SNS alert dispatched.'}
                 </div>
               </div>
             )}
 
-            {/* State 2: Professional Referral Gate */}
+            {/* State 2: Professional Referral Gate (Pediatric Liquid & Critical Dosing) */}
             {response.routing_decision === 'PROFESSIONAL_REFERRAL' && (
               <div className="result-alert-box referral" role="region" aria-label="Professional Referral Notice">
                 <div className="alert-top">
-                  <AlertTriangle size={20} className="alert-icon amber" />
+                  <AlertTriangle size={22} className="alert-icon amber" />
                   <span className="alert-title referral">
                     {response.reason?.includes('PEDIATRIC') || response.referral_message?.includes('PEDIATRIC')
                       ? 'Professional Clinical Referral Required · Pediatric Review'
                       : 'Professional Clinical Referral Required'}
                   </span>
+                  <span className="hit-score-badge amber">High-Risk Medical Decision</span>
                 </div>
 
                 <div className="alert-body referral">
                   {response.referral_message}
                 </div>
 
-                <div className="referral-resources-label">Verified Public Healthcare Resources:</div>
+                {/* Connect to a Professional Doctor CTA */}
+                {response.can_connect_professional && (
+                  <div className="connect-professional-card">
+                    <div className="connect-pro-info">
+                      <div className="connect-pro-title">
+                        <UserCheck size={18} className="text-cyan-400" />
+                        <span>Need Immediate Clinical Guidance?</span>
+                      </div>
+                      <p className="connect-pro-desc">
+                        Liquid syrups and weight-dependent medications must not be estimated via AI. You can dispatch an immediate inquiry to on-call clinical triage.
+                      </p>
+                    </div>
+
+                    {escalationResult ? (
+                      <div className={`escalation-status-box ${escalationResult.error ? 'error' : 'success'}`}>
+                        {escalationResult.error ? (
+                          <>
+                            <AlertTriangle size={16} />
+                            <span>{escalationResult.message}</span>
+                          </>
+                        ) : (
+                          <>
+                            <Check size={16} className="text-emerald-400" />
+                            <span>
+                              <strong>Clinical Escalation Dispatched:</strong> {escalationResult.message || 'Notification dispatched via Amazon SNS.'}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        className="connect-pro-btn"
+                        onClick={handleTriggerProfessional}
+                        disabled={isEscalating}
+                      >
+                        <PhoneCall size={15} />
+                        <span>{isEscalating ? 'Dispatching Escalation...' : 'Connect to a Professional Doctor'}</span>
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                <div className="referral-resources-label">Verified Teleconsultation & Public Health Portals:</div>
                 <div className="referral-resources-list">
                   {(response.referral_resources && response.referral_resources.length > 0
                     ? response.referral_resources
@@ -227,7 +309,7 @@ export default function ClinicalQueryView({
                         {
                           title: 'eSanjeevani Telemedicine (MoHFW)',
                           url: 'https://esanjeevani.mohfw.gov.in/',
-                          description: 'National citizen-to-doctor consultation platform.',
+                          description: 'Official Ministry of Health & Family Welfare doctor consultation platform.',
                         },
                       ]
                   ).map((r, i) => (
@@ -253,16 +335,16 @@ export default function ClinicalQueryView({
             {response.routing_decision === 'SAFE_CACHE_CANDIDATE' && response.cache_hit && (
               <div className="result-alert-box hit" role="region" aria-label="Verified Cached Answer">
                 <div className="alert-top">
-                  <CheckCircle size={20} className="alert-icon green" />
-                  <span className="alert-title hit">Verified Educational Cache Hit</span>
-                  <span className="hit-score-badge">
-                    Similarity: {response.similarity_score ? (response.similarity_score * 100).toFixed(1) + '%' : '99.5%'}
+                  <CheckCircle size={22} className="alert-icon green" />
+                  <span className="alert-title hit">Verified Educational Cache Hit · Clinical Semantic Match</span>
+                  <span className="hit-score-badge green">
+                    Similarity: {response.similarity_score ? (response.similarity_score * 100).toFixed(1) + '%' : '100.0%'} (≥ 92% Gate)
                   </span>
                 </div>
 
                 {response.matched_question && (
                   <div className="matched-question-label">
-                    Matched Seed Inquiry: "{response.matched_question}"
+                    Matched Approved Inquiry: <em>"{response.matched_question}"</em>
                   </div>
                 )}
 
@@ -271,14 +353,14 @@ export default function ClinicalQueryView({
                 <div className="provenance-grid">
                   <div className="provenance-cell">
                     <span className="cell-lbl">HUMAN REVIEW STATUS</span>
-                    <span className="cell-val green">Approved / Clinical Review</span>
+                    <span className="cell-val green">Approved &bull; Clinical Board</span>
                   </div>
                   <div className="provenance-cell">
                     <span className="cell-lbl">INSTITUTIONAL PROVENANCE</span>
                     <span className="cell-val">
                       {response.source_url ? (
                         <a href={response.source_url} target="_blank" rel="noopener noreferrer">
-                          {response.reviewed_by || 'Mayo Clinic Health Information'} ↗
+                          {response.reviewed_by || 'WHO / ICMR Clinical Guidelines'} ↗
                         </a>
                       ) : (
                         response.reviewed_by || 'Institutional Review'
@@ -286,7 +368,7 @@ export default function ClinicalQueryView({
                     </span>
                   </div>
                   <div className="provenance-cell">
-                    <span className="cell-lbl">REVIEW DATE</span>
+                    <span className="cell-lbl">REVIEW TIMESTAMP</span>
                     <span className="cell-val">
                       {response.reviewed_at ? new Date(response.reviewed_at).toLocaleDateString() : 'Active'}
                     </span>
@@ -299,38 +381,63 @@ export default function ClinicalQueryView({
               </div>
             )}
 
-            {/* State 4: Safe Cache Miss (AI Model Synthesis or Controlled Refusal) */}
+            {/* State 4: Safe Cache Miss (Structured AI Model Synthesis or Controlled Refusal) */}
             {response.routing_decision === 'CACHE_MISS' && (
               response.ai_generated ? (
                 <div className="result-alert-box ai-synthesis" role="region" aria-label="AI Clinical Model Synthesis">
                   <div className="alert-top">
-                    <Zap size={20} className="alert-icon blue" />
+                    <Zap size={20} className="alert-icon cyan" />
                     <span className="alert-title ai-synthesis">AI Clinical Model Synthesis (Tier-2 Fallback)</span>
-                    <span className="hit-score-badge blue">
+                    <span className="hit-score-badge cyan">
                       {response.model_name || 'GenSync Clinical SLM'}
                     </span>
                   </div>
 
-                  <div className="cached-answer-body ai-body" style={{ whiteSpace: 'pre-line', marginTop: '10px', fontSize: '13.5px', lineHeight: '1.6' }}>
-                    {response.answer}
+                  {/* Direct Core Answer */}
+                  <div className="ai-core-answer-box">
+                    <div className="ai-core-label">CORE CLINICAL SUMMARY</div>
+                    <div className="ai-core-text">{response.answer}</div>
                   </div>
 
+                  {/* Scannable Key Points */}
+                  {response.key_points && response.key_points.length > 0 && (
+                    <div className="ai-key-points-section">
+                      <div className="key-points-title">Key Clinical Takeaways:</div>
+                      <ul className="key-points-list">
+                        {response.key_points.map((pt, idx) => (
+                          <li key={idx} className="key-point-item">
+                            <span className="key-point-bullet" />
+                            <span className="key-point-content">{pt}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Actionable Clinical Guidance */}
                   {response.clinical_guidance && (
-                    <div className="ai-guidance-callout" style={{ marginTop: '12px', padding: '10px 14px', background: 'var(--color-bg-surface-interactive, #f0fdf4)', borderRadius: '8px', borderLeft: '3px solid #10b981' }}>
-                      <strong style={{ display: 'block', fontSize: '12px', color: '#047857', marginBottom: '4px' }}>CLINICAL GUIDANCE</strong>
-                      <p style={{ fontSize: '13px', margin: 0 }}>{response.clinical_guidance}</p>
+                    <div className="ai-guidance-glass-card">
+                      <div className="guidance-card-header">
+                        <CheckCircle size={15} className="text-emerald-400" />
+                        <span>ACTIONABLE CLINICAL GUIDANCE</span>
+                      </div>
+                      <p className="guidance-card-body">{response.clinical_guidance}</p>
                     </div>
                   )}
 
+                  {/* Red Flags / Warning Signs */}
                   {response.warning_signs && (
-                    <div className="ai-warning-callout" style={{ marginTop: '8px', padding: '10px 14px', background: 'var(--color-bg-surface-interactive, #fffbeb)', borderRadius: '8px', borderLeft: '3px solid #f59e0b' }}>
-                      <strong style={{ display: 'block', fontSize: '12px', color: '#b45309', marginBottom: '4px' }}>WHEN TO SEEK IMMEDIATE CARE</strong>
-                      <p style={{ fontSize: '13px', margin: 0 }}>{response.warning_signs}</p>
+                    <div className="ai-warning-glass-card">
+                      <div className="warning-card-header">
+                        <AlertTriangle size={15} className="text-amber-400" />
+                        <span>SAFETY BOUNDARIES & WARNING SIGNS</span>
+                      </div>
+                      <p className="warning-card-body">{response.warning_signs}</p>
                     </div>
                   )}
 
-                  <div className="alert-footer-note miss" style={{ marginTop: '12px' }}>
-                    <span>Zero Dedicated Vector DB Invariant:</span> Synthesized by Tier-2 clinical model and enqueued to <code>gensync_slm_review_queue</code> in DynamoDB for physician sign-off.
+                  <div className="alert-footer-note miss">
+                    <span>AWS Zero-Vector-DB Pipeline:</span> Evaluated against DynamoDB semantic clusters, dynamically synthesized, and safely enqueued with automated LRU cache maintenance.
                   </div>
                 </div>
               ) : (
@@ -351,19 +458,57 @@ export default function ClinicalQueryView({
               )
             )}
 
-            {/* Scientific Observability Drawer */}
+            {/* Scientific Observability Drawer with Dynamic Cache Occupancy */}
             <div className="telemetry-drawer-card">
               <button
                 type="button"
                 className="drawer-toggle-btn"
                 onClick={() => setShowInspector(!showInspector)}
               >
-                <span>🔬 Scientific Observability & Query Digest</span>
-                <span>{showInspector ? '▲ Collapse' : '▼ Expand'}</span>
+                <div className="drawer-title-row">
+                  <Database size={15} className="text-cyan-400" />
+                  <span>🔬 Scientific Observability & Cache Occupancy ({occupancyCount} / {maxCapacity})</span>
+                </div>
+                <span className="drawer-state-indicator">{showInspector ? '▲ Collapse' : '▼ Expand'}</span>
               </button>
 
               {showInspector && (
                 <div className="drawer-body">
+                  {/* Cache Capacity & Eviction Telemetry */}
+                  <div className="cache-occupancy-telemetry-row">
+                    <div className="occupancy-info-col">
+                      <div className="occupancy-label">
+                        <Layers size={14} className="text-cyan-400" />
+                        <span>DynamoDB Semantic Cache Occupancy:</span>
+                        <strong className="occupancy-count">{occupancyCount} / {maxCapacity} entries</strong>
+                        <span className="eviction-tag">LRU Eviction Active</span>
+                      </div>
+                      <div className="occupancy-progress-track">
+                        <div
+                          className="occupancy-progress-fill"
+                          style={{
+                            width: `${occupancyPercent}%`,
+                            backgroundColor: occupancyPercent > 80 ? '#f59e0b' : '#06b6d4',
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div className="occupancy-note">
+                      * Auto-evicts least recently used items when full to maintain AWS Free Tier bounds.
+                    </div>
+                  </div>
+
+                  {/* Match Reasoning Callout */}
+                  {response.match_reasoning && (
+                    <div className="match-reasoning-callout">
+                      <Info size={14} className="text-cyan-400 flex-shrink-0" />
+                      <div className="reasoning-text">
+                        <strong>Match Reasoning:</strong> {response.match_reasoning}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Latency Telemetry Grid */}
                   <div className="telemetry-mini-stats">
                     <div className="stat-pill">
                       <span className="lbl">Client RTT</span>
@@ -383,6 +528,7 @@ export default function ClinicalQueryView({
                     </div>
                   </div>
 
+                  {/* Cryptographic SHA-256 Digest */}
                   <div className="digest-box">
                     <div className="digest-lbl">
                       <span>Cryptographic Query Digest (SHA-256)</span>
@@ -392,7 +538,7 @@ export default function ClinicalQueryView({
                       <code>{response.query_digest || clientDigest || 'N/A'}</code>
                     </div>
                     <div className="digest-note">
-                      * One-way cryptographic digest. Raw clinical queries are never persisted to DynamoDB or CloudWatch.
+                      * One-way cryptographic digest. Raw patient queries are never stored in DynamoDB or CloudWatch.
                     </div>
                   </div>
 

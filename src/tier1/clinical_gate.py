@@ -1,18 +1,19 @@
 """
 GenSync-Cache: Deterministic Clinical Compatibility Gate
-Stage 2 Post-retrieval Safety Verification
+Stage 2 Post-retrieval Safety Verification & Hybrid Matching
 
 Evaluates whether a semantically similar candidate query is clinically compatible
 with the incoming user query. Prevents false cache hits caused by:
-1. Numeric / dosage / temperature differences
-2. Polarity / negation discrepancies
-3. Demographic cohort divergence (elderly vs youth)
-4. Severity / temporal mismatch (acute vs chronic)
+1. Primary medical entity / condition divergence (e.g. Fever vs Common Cold)
+2. Numeric / dosage / temperature differences
+3. Polarity / negation discrepancies ("with fever" vs "without fever")
+4. Demographic cohort divergence (adult vs pediatric vs geriatric)
+5. Severity / temporal mismatch (acute vs chronic)
 """
 
 import re
 from dataclasses import dataclass
-from typing import Tuple, List, Set, Optional
+from typing import Tuple, List, Set, Optional, Dict
 
 
 @dataclass
@@ -30,10 +31,11 @@ NEGATION_WORDS = {
 
 # Demographic / Cohort Identifiers
 DEMOGRAPHIC_GROUPS = {
+    "pediatric": {"infant", "baby", "newborn", "toddler", "child", "kid", "pediatric", "paediatric"},
     "geriatric": {"elderly", "senior", "older", "geriatric", "aged", "retiree"},
     "youth": {"teen", "teenager", "adolescent", "young", "youth"},
     "adult": {"adult", "middle-aged"},
-    "gender_female": {"female", "woman", "women", "girl"},
+    "gender_female": {"female", "woman", "women", "girl", "pregnant", "pregnancy"},
     "gender_male": {"male", "man", "men", "boy"},
 }
 
@@ -45,10 +47,24 @@ SEVERITY_MODIFIERS = {
     "severe": {"severe", "intense", "extreme", "excruciating", "debilitating"},
 }
 
+# Primary Medical Condition & Symptom Entities
+PRIMARY_CONDITIONS = {
+    "fever": {"fever", "pyrexia", "high temperature", "febrile", "feverish"},
+    "cold": {"common cold", "cold symptoms", "rhinovirus", "runny nose", "congestion"},
+    "cough": {"cough", "coughing", "dry cough", "wet cough", "phlegm", "bronchitis"},
+    "headache": {"headache", "migraine", "cephalea", "head pain", "tension headache"},
+    "hypertension": {"blood pressure", "hypertension", "systolic", "diastolic", "high bp"},
+    "diabetes": {"diabetes", "blood sugar", "glucose", "insulin", "hba1c", "hyperglycemia"},
+    "cardiac": {"chest pain", "heart", "cardiac", "myocardial", "angina"},
+    "allergy": {"allergy", "allergic", "hives", "rash", "anaphylaxis"},
+    "asthma": {"asthma", "wheezing", "bronchospasm", "inhaler"},
+    "hydration": {"water", "hydration", "fluid intake", "dehydration", "drink water"},
+}
+
 
 class ClinicalCompatibilityGate:
     """
-    Deterministic gate that runs AFTER high cosine similarity is established.
+    Deterministic gate that runs AFTER candidate retrieval.
     Rejects candidates that are semantically close in vector space but clinically discordant.
     """
 
@@ -63,9 +79,7 @@ class ClinicalCompatibilityGate:
         """
         pattern = r"\b(\d+(?:\.\d+)?(?:\/\d+)?(?:\s*(?:mg|g|kg|ml|l|cups|liters|mm\s*hg|°?[fc]|days?|hours?|weeks?))?)\b"
         matches = re.findall(pattern, text.lower())
-        # Clean up whitespace inside extracted units
-        normalized = {re.sub(r"\s+", "", m) for m in matches if m}
-        return normalized
+        return {re.sub(r"\s+", "", m) for m in matches if m}
 
     @staticmethod
     def _extract_negations(text: str) -> Set[str]:
@@ -99,6 +113,20 @@ class ClinicalCompatibilityGate:
                 detected.add(category)
         return detected
 
+    @staticmethod
+    def _detect_primary_conditions(text: str) -> Set[str]:
+        """
+        Detects primary clinical symptom / disease entities.
+        """
+        lower = text.lower()
+        detected = set()
+        for condition, terms in PRIMARY_CONDITIONS.items():
+            for term in terms:
+                if re.search(r"\b" + re.escape(term) + r"\b", lower):
+                    detected.add(condition)
+                    break
+        return detected
+
     def verify_compatibility(
         self,
         query: str,
@@ -124,7 +152,23 @@ class ClinicalCompatibilityGate:
                 detected_discrepancies=discrepancies
             )
 
-        # 2. NUMERIC / DOSAGE / VALUE CHECK
+        # 2. PRIMARY CLINICAL ENTITY / CONDITION CHECK (e.g. Fever vs Cold)
+        query_conditions = self._detect_primary_conditions(query)
+        cache_conditions = self._detect_primary_conditions(cached_question)
+        if query_conditions and cache_conditions:
+            # If both have detected conditions and they have no overlap
+            if query_conditions.isdisjoint(cache_conditions):
+                discrepancies.append(
+                    f"Primary medical condition mismatch: query asks about {query_conditions}, "
+                    f"cache contains {cache_conditions}"
+                )
+                return CompatibilityResult(
+                    is_compatible=False,
+                    rejection_reason="PRIMARY_CONDITION_MISMATCH",
+                    detected_discrepancies=discrepancies
+                )
+
+        # 3. NUMERIC / DOSAGE / VALUE CHECK
         if self.strict_numeric_match:
             query_nums = self._extract_numbers_with_units(query)
             cache_nums = self._extract_numbers_with_units(cached_question)
@@ -140,20 +184,37 @@ class ClinicalCompatibilityGate:
                     detected_discrepancies=discrepancies
                 )
 
-        # 3. DEMOGRAPHIC COHORT CHECK
+        # 4. DEMOGRAPHIC COHORT CHECK (Adult vs Pediatric vs Geriatric vs Youth)
         query_demo = self._detect_demographic_categories(query)
         cache_demo = self._detect_demographic_categories(cached_question)
-        if query_demo and cache_demo and query_demo != cache_demo:
-            discrepancies.append(
-                f"Demographic group mismatch: query={query_demo}, cache={cache_demo}"
-            )
-            return CompatibilityResult(
-                is_compatible=False,
-                rejection_reason="DEMOGRAPHIC_MISMATCH",
-                detected_discrepancies=discrepancies
-            )
+        if query_demo and cache_demo:
+            age_cohorts = {"pediatric", "youth", "adult", "geriatric"}
+            q_age = query_demo & age_cohorts
+            c_age = cache_demo & age_cohorts
+            if q_age and c_age and q_age.isdisjoint(c_age):
+                discrepancies.append(
+                    f"Demographic group conflict: query={q_age}, cache={c_age}"
+                )
+                return CompatibilityResult(
+                    is_compatible=False,
+                    rejection_reason="DEMOGRAPHIC_MISMATCH",
+                    detected_discrepancies=discrepancies
+                )
 
-        # 4. SEVERITY / TEMPORAL CHECK (e.g. Acute vs Chronic, Mild vs Severe)
+            gender_cohorts = {"gender_female", "gender_male"}
+            q_gender = query_demo & gender_cohorts
+            c_gender = cache_demo & gender_cohorts
+            if q_gender and c_gender and q_gender.isdisjoint(c_gender):
+                discrepancies.append(
+                    f"Gender cohort conflict: query={q_gender}, cache={c_gender}"
+                )
+                return CompatibilityResult(
+                    is_compatible=False,
+                    rejection_reason="DEMOGRAPHIC_MISMATCH",
+                    detected_discrepancies=discrepancies
+                )
+
+        # 5. SEVERITY / TEMPORAL CHECK (e.g. Acute vs Chronic, Mild vs Severe)
         query_sev = self._detect_severity_categories(query)
         cache_sev = self._detect_severity_categories(cached_question)
         

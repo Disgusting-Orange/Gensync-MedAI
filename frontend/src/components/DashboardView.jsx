@@ -79,12 +79,31 @@ export default function DashboardView({
   emergencyNumber = '112',
   recentEvaluations = [],
   setActiveView,
+  onConnectProfessional,
 }) {
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'telemetry'
+  const [isEscalating, setIsEscalating] = useState(false);
+  const [escalationResult, setEscalationResult] = useState(null);
 
   const handleSelectExample = (preset) => {
     setQuery(preset.queryText);
-    // Optionally auto-submit if onSubmit is available
+    setEscalationResult(null);
+  };
+
+  const handleTriggerProfessional = async () => {
+    if (!onConnectProfessional || isEscalating) return;
+    setIsEscalating(true);
+    try {
+      const res = await onConnectProfessional(query, response?.correlation_id);
+      setEscalationResult(res);
+    } catch (err) {
+      setEscalationResult({
+        error: true,
+        message: err.message || 'Escalation dispatch failed. Please dial 112 directly.',
+      });
+    } finally {
+      setIsEscalating(false);
+    }
   };
 
   const charCount = (query || '').length;
@@ -236,8 +255,42 @@ export default function DashboardView({
                           ? 'Inquiries involving pediatric liquid formulations (such as P500 syrup, suspensions, or drops) require direct physician examination to determine exact body-weight dosage (mg/kg).'
                           : 'This inquiry involves contraindications or specialized medication that requires licensed clinical consultation.'}
                       </p>
+
+                      {/* Interactive Connect to Professional Doctor */}
+                      {response.can_connect_professional && (
+                        <div className="connect-professional-card" style={{ marginTop: '12px' }}>
+                          {escalationResult ? (
+                            <div className={`escalation-status-box ${escalationResult.error ? 'error' : 'success'}`}>
+                              {escalationResult.error ? (
+                                <>
+                                  <AlertTriangle size={16} />
+                                  <span>{escalationResult.message}</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Check size={16} className="text-emerald-400" />
+                                  <span>
+                                    <strong>Clinical Escalation Dispatched:</strong> {escalationResult.message || 'Alert dispatched via Amazon SNS.'}
+                                  </span>
+                                </>
+                              )}
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              className="connect-pro-btn"
+                              onClick={handleTriggerProfessional}
+                              disabled={isEscalating}
+                            >
+                              <PhoneCall size={14} />
+                              <span>{isEscalating ? 'Dispatching Escalation...' : 'Connect to a Professional Doctor'}</span>
+                            </button>
+                          )}
+                        </div>
+                      )}
+
                       {response.referral_resources && (
-                        <div className="verified-referral-links">
+                        <div className="verified-referral-links" style={{ marginTop: '12px' }}>
                           {response.referral_resources.map((res, i) => (
                             <a key={i} href={res.url} target="_blank" rel="noreferrer" className="referral-link-card">
                               <ExternalLink size={14} />
@@ -283,23 +336,50 @@ export default function DashboardView({
                             Tier-2 Fallback Model · Serverless SLM
                           </span>
                         </div>
-                        <div className="ai-answer-markdown" style={{ whiteSpace: 'pre-line', marginTop: '10px', fontSize: '13.5px', lineHeight: '1.6' }}>
-                          {response.answer}
+
+                        {/* Direct Answer */}
+                        <div className="ai-core-answer-box" style={{ marginTop: '10px' }}>
+                          <div className="ai-core-label">CORE CLINICAL SUMMARY</div>
+                          <div className="ai-core-text">{response.answer}</div>
                         </div>
+
+                        {/* Structured Scannable Bullets */}
+                        {response.key_points && response.key_points.length > 0 && (
+                          <div className="ai-key-points-section" style={{ marginTop: '10px' }}>
+                            <div className="key-points-title">Key Clinical Takeaways:</div>
+                            <ul className="key-points-list">
+                              {response.key_points.map((pt, idx) => (
+                                <li key={idx} className="key-point-item">
+                                  <span className="key-point-bullet" />
+                                  <span className="key-point-content">{pt}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
                         {response.clinical_guidance && (
-                          <div className="ai-guidance-card" style={{ marginTop: '12px', padding: '10px 14px', background: 'var(--color-bg-surface-interactive, #f0fdf4)', borderRadius: '8px', borderLeft: '3px solid #10b981' }}>
-                            <strong style={{ display: 'block', fontSize: '12px', color: '#047857', marginBottom: '4px' }}>CLINICAL GUIDANCE</strong>
-                            <p style={{ fontSize: '13px', margin: 0 }}>{response.clinical_guidance}</p>
+                          <div className="ai-guidance-glass-card" style={{ marginTop: '10px' }}>
+                            <div className="guidance-card-header">
+                              <CheckCircle2 size={14} className="text-emerald-400" />
+                              <span>CLINICAL GUIDANCE</span>
+                            </div>
+                            <p className="guidance-card-body">{response.clinical_guidance}</p>
                           </div>
                         )}
+
                         {response.warning_signs && (
-                          <div className="ai-warning-card" style={{ marginTop: '8px', padding: '10px 14px', background: 'var(--color-bg-surface-interactive, #fffbeb)', borderRadius: '8px', borderLeft: '3px solid #f59e0b' }}>
-                            <strong style={{ display: 'block', fontSize: '12px', color: '#b45309', marginBottom: '4px' }}>MONITORING & RED FLAGS</strong>
-                            <p style={{ fontSize: '13px', margin: 0 }}>{response.warning_signs}</p>
+                          <div className="ai-warning-glass-card" style={{ marginTop: '8px' }}>
+                            <div className="warning-card-header">
+                              <AlertTriangle size={14} className="text-amber-400" />
+                              <span>MONITORING & RED FLAGS</span>
+                            </div>
+                            <p className="warning-card-body">{response.warning_signs}</p>
                           </div>
                         )}
+
                         <p className="miss-sub" style={{ marginTop: '12px' }}>
-                          Zero dedicated vector DB: This answer was synthesized by GenSync-MedAI Tier-2 model and enqueued to <code>gensync_slm_review_queue</code> for physician review.
+                          Zero dedicated vector DB: Synthesized by Tier-2 clinical model and enqueued to <code>gensync_slm_review_queue</code> with LRU cache maintenance.
                         </p>
                       </div>
                     ) : (
@@ -327,16 +407,14 @@ export default function DashboardView({
                         {response.latency?.total_ms !== undefined ? `${response.latency.total_ms} ms` : `${response.latency_ms || 0.1} ms`}
                       </span>
                     </div>
-                    {response.latency?.embedding_ms !== undefined && (
-                      <div className="telemetry-item">
-                        <span className="t-label">ONNX Embedding:</span>
-                        <span className="t-val">{response.latency.embedding_ms} ms</span>
-                      </div>
-                    )}
-                    {response.latency?.cache_lookup_ms !== undefined && (
-                      <div className="telemetry-item">
-                        <span className="t-label">DynamoDB Lookup:</span>
-                        <span className="t-val">{response.latency.cache_lookup_ms} ms</span>
+                    <div className="telemetry-item">
+                      <span className="t-label">Cache Occupancy:</span>
+                      <span className="t-val">{response.cache_occupancy?.current_entries || 20} / 50</span>
+                    </div>
+                    {response.match_reasoning && (
+                      <div className="telemetry-item" style={{ flex: '1 1 100%', marginTop: '4px' }}>
+                        <span className="t-label">Match Reasoning:</span>
+                        <span className="t-val" style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>{response.match_reasoning}</span>
                       </div>
                     )}
                     <div className="telemetry-item digest-item">
