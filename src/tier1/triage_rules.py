@@ -45,28 +45,41 @@ VERIFIED_REFERRAL_RESOURCES = [
 ]
 
 
-# Deterministic Emergency Patterns
+# Deterministic Emergency Patterns (English, Hindi/Tamil Transliterations, and Multilingual Code-Mixed)
 EMERGENCY_PATTERNS = {
     "severe_chest_pain": [
         r"\b(severe|crushing|squeezing|radiating)\s+(chest\s+pain|chest\s+pressure|heart\s+pain)\b",
         r"\b(chest\s+pain|chest\s+tightness)\s+(with|and)\s+(left\s+arm|jaw\s+pain|shortness\s+of\s+breath|sweating)\b",
         r"\b(having|suspect|signs\s+of)\s+a?\s*(heart\s+attack|myocardial\s+infarction)\b",
+        # Transliterated Hindi / Hinglish
+        r"\b(seene\s+mein\s+(?:tez\s+)?dard|dil\s+ka\s+daura|chaati\s+mein\s+dard)\b",
+        # Transliterated Tamil / Tanglish
+        r"\b(nenju\s+vali|nenjil\s+baram|maradaipu|idhu\s+heart\s+attack\s+ah)\b",
     ],
     "stroke_indicators": [
         r"\b(face\s+(?:is\s+)?droop|facial\s+droop(?:ing)?|arm\s+weakness|slurred\s+speech|speech\s+difficulty)\b",
         r"\b(sudden\s+numbness|sudden\s+loss\s+of\s+vision|sudden\s+inability\s+to\s+speak)\b",
         r"\b(cannot\s+speak|unable\s+to\s+speak|cannot\s+(?:lift|move)\s+(?:her|his|my)\s+(?:right|left)?\s*arm)\b",
         r"\b(having|signs\s+of)\s+a?\s*(stroke|cerebrovascular\s+accident|tia|mini\s+stroke)\b",
+        # Hinglish & Tanglish
+        r"\b(chehra\s+tedha|muh\s+tedha|bol\s+nahi\s+pa\s+raha|lakwa|pakshaghat)\b",
+        r"\b(vaai\s+orapakkam\s+saanchiduchi|pesa\s+mudiyala|kai\s+kaal\s+seyalpadala)\b",
     ],
     "severe_breathing_difficulty": [
         r"\b(cannot\s+breathe|gasping\s+for\s+air|unable\s+to\s+breathe|severe\s+shortness\s+of\s+breath)\b",
         r"\b(choking|throat\s+closing|turning\s+blue|cyanosis)\b",
         r"\b(respiratory\s+failure|suffocation|stridor)\b",
+        # Hinglish & Tanglish
+        r"\b(saans\s+nahi\s+aa\s+rahi|dum\s+ghut\s+raha\s+hai|gala\s+band\s+ho\s+raha)\b",
+        r"\b(moochu\s+thinaral|moochu\s+vida\s+mudiyala|thondai\s+adaikkuthu)\b",
     ],
     "suspected_overdose_poisoning": [
         r"\b(swallowed|ingested|drank|consumed)\s+(?:\w+\s+){0,3}(poison|bleach|detergent|battery|pesticide|cleaner|chemical|toxin)\b",
         r"\b(took\s+too\s+many|overdosed\s+on|overdose\s+of)\s+([a-z\s]+)\b",
         r"\b(acute\s+poisoning|toxic\s+ingestion)\b",
+        # Hinglish & Tanglish
+        r"\b(zeher\s+pee\s+liya|zeher\s+kha\s+liya|pesticide\s+pee\s+liya)\b",
+        r"\b(visham\s+kudichitaanga|poison\s+saaptutanga)\b",
     ],
     "severe_headache_emergency": [
         r"\b(thunderclap\s+headache|worst\s+headache\s+of\s+(?:my|his|her)\s+life)\b",
@@ -81,6 +94,8 @@ EMERGENCY_PATTERNS = {
         r"\b(arterial\s+bleed|arterial\s+bleeding|arterial\s+hemorrhage)\b",
         r"\b(coughing\s+up|vomiting)\s+(large\s+amounts\s+of\s+blood|blood\s+clots)\b",
         r"\b(wound\s+won'?t\s+stop\s+bleeding)\b",
+        r"\b(khoon\s+ruk\s+nahi\s+raha|bahut\s+khoon\s+beh\s+raha)\b",
+        r"\b(ratham\s+nikkama\s+varuthu|adhigha\s+ratha\s+pokku)\b",
     ],
     "anaphylaxis": [
         r"\b(anaphylaxis|anaphylactic\s+shock)\b",
@@ -89,11 +104,15 @@ EMERGENCY_PATTERNS = {
     "loss_of_consciousness_seizure": [
         r"\b(unconscious|unresponsive|passed\s+out|fainted\s+and\s+not\s+waking\s+up)\b",
         r"\b(active\s+seizure|convulsing|grand\s+mal\s+seizure|continuous\s+seizure)\b",
+        r"\b(behosh\s+ho\s+gaye|fits\s+aa\s+raha\s+hai|mirgi\s+ka\s+daura)\b",
+        r"\b(mayakkam\s+adanchitaanga|kaaka\s+vali)\b",
     ],
     "self_harm_suicide": [
         r"\b(want\s+to\s+kill\s+myself|committing\s+suicide|end\s+my\s+life|suicidal\s+thoughts)\b",
         r"\b(slit\s+my\s+wrist|hanging\s+myself|took\s+all\s+my\s+pills\s+to\s+die)\b",
         r"\b(harm\s+myself|self\s+harm)\b",
+        r"\b(khudkushi|jaan\s+dena\s+chahta)\b",
+        r"\b(tharkolai|uyira\s+maaythukka)\b",
     ],
 }
 
@@ -115,7 +134,10 @@ REFERRAL_PATTERNS = {
         r"\b(metformin|amlodipine|lisinopril|atorvastatin|levothyroxine|omeprazole)\b",
         r"\b(amoxicillin|azithromycin|ciprofloxacin|doxycycline|augmentin|antibiotic)\b",
         r"\b(warfarin|apixaban|clopidogrel|heparin|eliquis|blood\s+thinner)\b",
-        r"\b(insulin|lantus|glargine|novolog|humalog|glipizide|empagliflozin|ozempic|wegovy|saxenda)\b",
+        # Context-aware Insulin: flags dosing/titration/injection, permits physiological/educational queries
+        r"\b(lantus|glargine|novolog|humalog|glipizide|empagliflozin|ozempic|wegovy|saxenda)\b",
+        r"\b(?:dose|dosage|inject|units|titrat|adjust|taking|prescrib\w*|start|stop)\s+(?:\w+\s+){0,3}insulin\b",
+        r"\binsulin\s+(?:dose|dosage|units|injection|sliding\s+scale|overdose|pump|pen|titration|adjustment)\b",
         r"\b(prednisone|dexamethasone|methylprednisolone|steroid\s+dose)\b",
         r"\b(sertraline|fluoxetine|alprazolam|lorazepam|clonazepam|escitalopram)\b",
         r"\b(tramadol|oxycodone|hydrocodone|codeine|morphine)\b",
